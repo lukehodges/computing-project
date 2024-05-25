@@ -1,0 +1,256 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Client {
+  id        Int        @id @default(autoincrement())
+  name      String?
+  createdAt DateTime   @default(now())
+  documents Document[]
+  invoices  Invoice[]
+  tags      Tag[]      @relation("ClientTags")
+  company   Company[]  @relation("ClientToCompany")
+  deals     Deal[]     @relation("ClientToDeal")
+  assigned  User[]     @relation("ClientToUser")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  taskId    Int
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id])
+  task      Task     @relation(fields: [taskId], references: [id])
+}
+
+model Company {
+  id        Int       @id @default(autoincrement())
+  name      String?
+  createdAt DateTime  @default(now())
+  client    Client[]  @relation("ClientToCompany")
+  contacts  Contact[] @relation("CompanyToContact")
+}
+
+model Contact {
+  id         Int       @id @default(autoincrement())
+  companies  Company[] @relation("CompanyToContact")
+  assignedTo User[]    @relation("ContactToUser")
+}
+
+model Deal {
+  id         Int      @id @default(autoincrement())
+  name       String?
+  createdAt  DateTime @default(now())
+  value      Int?
+  confidence Float?
+  client     Client[] @relation("ClientToDeal")
+  assignedTo User[]   @relation("DealToUser")
+}
+
+model Document {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  projectId Int?
+  clientId  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  client    Client?  @relation(fields: [clientId], references: [id])
+  project   Project? @relation(fields: [projectId], references: [id])
+  files     File[]
+}
+
+model File {
+  id         Int       @id @default(autoincrement())
+  url        String
+  name       String
+  type       String
+  size       Int
+  projectId  Int?
+  taskId     Int?
+  documentId Int?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now())
+  document   Document? @relation(fields: [documentId], references: [id])
+  project    Project?  @relation(fields: [projectId], references: [id])
+  task       Task?     @relation(fields: [taskId], references: [id])
+}
+
+model Invoice {
+  id        Int           @id @default(autoincrement())
+  clientId  Int
+  projectId Int?
+  amount    Float
+  status    InvoiceStatus @default(PENDING)
+  issuedAt  DateTime      @default(now())
+  dueDate   DateTime
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  client    Client        @relation(fields: [clientId], references: [id])
+  project   Project?      @relation(fields: [projectId], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  type      String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Organization {
+  id         String    @id @unique
+  identifier String?
+  name       String?
+  legalName  String?
+  image      String?
+  projects   Project[] @relation("OrganizationToProject")
+  users      User[]    @relation("OrganizationToUser")
+}
+
+model Project {
+  id           Int            @id @default(autoincrement())
+  name         String
+  description  String?
+  ownerId      String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  documents    Document[]
+  files        File[]
+  invoices     Invoice[]
+  owner        User           @relation(fields: [ownerId], references: [id])
+  tasks        Task[]
+  timeEntries  TimeEntry[]
+  organization Organization[] @relation("OrganizationToProject")
+  tags         Tag[]          @relation("ProjectTags")
+}
+
+model Task {
+  id             Int         @id @default(autoincrement())
+  title          String
+  description    String?
+  status         TaskStatus  @default(TODO)
+  priority       Int         @default(1)
+  projectId      Int?
+  dueDate        DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  startDate      DateTime?
+  estimatedHours Float?
+  parentTaskId   Int?
+  content        String?
+  comments       Comment[]
+  files          File[]
+  parentTask     Task?       @relation("Subtasks", fields: [parentTaskId], references: [id])
+  subtasks       Task[]      @relation("Subtasks")
+  project        Project?    @relation(fields: [projectId], references: [id])
+  timeEntries    TimeEntry[]
+  tags           Tag[]       @relation("TaskTags")
+  assignee       User[]      @relation("TaskToUser")
+}
+
+model TimeEntry {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  taskId      Int
+  projectId   Int?
+  date        DateTime
+  hours       Float
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Project? @relation(fields: [projectId], references: [id])
+  task        Task     @relation(fields: [taskId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  name     String
+  color    String?
+  clients  Client[]  @relation("ClientTags")
+  projects Project[] @relation("ProjectTags")
+  tasks    Task[]    @relation("TaskTags")
+}
+
+model User {
+  id               String         @id @unique @default(uuid())
+  firstName        String?
+  lastName         String?
+  email            String?        @unique
+  passwordEnabled  Boolean?
+  emailVerified    Boolean?
+  image            String?
+  createdAt        DateTime       @default(now())
+  lastLoginAt      DateTime?
+  username         String?
+  tfaEnabled       Boolean?
+  birthday         DateTime?
+  gender           String?
+  activityLogs     ActivityLog[]
+  comments         Comment[]
+  notifications    Notification[]
+  assignedProjects Project[]
+  timeEntries      TimeEntry[]
+  createdWorkflows Workflow[]     @relation("UserWorkflowCreator")
+  updatedWorks     Workflow[]     @relation("UserWorkflowEditor")
+  assignedClients  Client[]       @relation("ClientToUser")
+  assignedContacts Contact[]      @relation("ContactToUser")
+  assignedDeals    Deal[]         @relation("DealToUser")
+  organizations    Organization[] @relation("OrganizationToUser")
+  assignedTasks    Task[]         @relation("TaskToUser")
+}
+
+model Workflow {
+  id                Int                 @id @default(autoincrement())
+  path              String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  nodes             Json?
+  data              Json?
+  createdById       String
+  editedById        String
+  creator           User                @relation("UserWorkflowCreator", fields: [createdById], references: [id])
+  editor            User                @relation("UserWorkflowEditor", fields: [editedById], references: [id])
+  workflowInstances WorkflowExecution[]
+}
+
+model WorkflowExecution {
+  id           Int      @id @default(autoincrement())
+  workflowId   Int
+  currentNodes Json
+  data         String?
+  workflow     Workflow @relation(fields: [workflowId], references: [id])
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELED
+  BACKLOG
+}
