@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/custom/button";
 import { LayoutBody } from "@/components/custom/layout";
 import {
@@ -23,7 +24,7 @@ const projectText = new Map<string, string>([
   ["client", "Clients"],
 ]);
 
-export async function TableGeneration() {
+export function TableGeneration() {
   const [sort, setSort] = useState("ascending");
   const [appType, setAppType] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");

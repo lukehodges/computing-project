@@ -69,6 +69,7 @@ export const columns: ColumnDef<Task>[] = [
     ),
     cell: ({ row }) => {
       let users:User[] = row.getValue("assignee")
+      if (users) { 
       return (
         <div className="flex space-x-2">
           {
@@ -81,7 +82,8 @@ export const columns: ColumnDef<Task>[] = [
           )}
           
         </div>
-      )
+      )}
+      return <h1>no asisgnee/</h1>
     },
   },
   {
