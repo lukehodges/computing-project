@@ -3,14 +3,14 @@
 import { Badge } from "@/components/ui/badge";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-export default function UserBadge() {
+export default function UserBadge({url, fallback, name}) {
   return <div>
     <Badge variant={"outline"}>
         
     <Avatar className="h-4 w-4 mr-1">
-                      <AvatarImage src="https://github.com/shadcn.png" width={"10px"} height={"10px"}/>
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar> John Doe
+                      <AvatarImage src={url} width={"10px"} height={"10px"}/>
+                      <AvatarFallback>{fallback}</AvatarFallback>
+                    </Avatar> {name}
         </Badge>
 
   </div>;

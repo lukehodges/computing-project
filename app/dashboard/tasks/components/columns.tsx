@@ -29,6 +29,7 @@ export const columns: ColumnDef<Task>[] = [
           (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        
         aria-label="Select all"
         className="translate-y-[2px]"
       />
@@ -37,6 +38,7 @@ export const columns: ColumnDef<Task>[] = [
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onClick={(e) => e.stopPropagation()}
         aria-label="Select row"
         className="translate-y-[2px]"
       />
@@ -62,7 +64,7 @@ export const columns: ColumnDef<Task>[] = [
       // const label = labels.find((label) => label.value === row.original.label)
 
       return (
-        <div className="flex space-x-2" onClick={()=>(pushing(row))}>
+        <div className="flex space-x-2" >
           {/* {label && <Badge variant="outline">{label.label}</Badge>} */}
           <span className="max-w-[500px] truncate font-medium">
             {row.getValue("title")}

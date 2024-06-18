@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,9 +14,8 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  
   useReactTable,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -25,32 +24,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
-import { DataTablePagination } from "./data-table-pagination"
-import { DataTableToolbar } from "./data-table-toolbar"
-import { redirect } from "next/navigation"
-import { useRouter } from "next/navigation"
+import { DataTablePagination } from "./data-table-pagination";
+import { DataTableToolbar } from "./data-table-toolbar";
+import { useRouter } from "next/navigation";
+
 export interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[],
-  // onDelete: (rows:Row<TData>[])=>void;
-  editable: boolean 
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  editable: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   editable,
-  // onDelete
 }: DataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = React.useState({})
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({ id:false})
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({ id: false });
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
     data,
@@ -71,15 +65,13 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    
-  })
-  const onClick = () => {
-    console.log(";")
-  }
-  let router = useRouter();
+  });
+
+  const router = useRouter();
+
   return (
     <div className="space-y-4 overflow-hidden">
-      <DataTableToolbar table={table} editable={editable} onDelete={()=>{console.log("deleted")}}/>
+      <DataTableToolbar table={table} editable={editable} onDelete={() => { console.log("deleted"); }} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -95,7 +87,7 @@ export function DataTable<TData, TValue>({
                             header.getContext()
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -106,7 +98,10 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={()=> router.push("/dashboard/tasks/"+row.getValue("id"))}
+                  onClick={(event) => {
+                      router.push("/dashboard/tasks/" + row.getValue("id"));
+                    
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} >
@@ -133,5 +128,5 @@ export function DataTable<TData, TValue>({
       </div>
       <DataTablePagination table={table} />
     </div>
-  )
+  );
 }

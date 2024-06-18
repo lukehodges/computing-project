@@ -167,8 +167,8 @@ export default async function ProjectPage() {
                 Team Leads
                 <div className="text-xs text-muted-foreground">
                   <div className="flex">
-                    <UserBadge />
-                    <UserBadge />
+                    <UserBadge url="https://github.com/shadcn.png" fallback="CN" name={"dababy"}/>
+                    <UserBadge url="https://github.com/lukehodges.png" fallback="CN" name={"dababy"}/>
                     <UserBadge />
                   </div>
 
