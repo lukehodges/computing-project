@@ -4,6 +4,7 @@ import * as React from "react"
 import {
   ColumnDef,
   ColumnFiltersState,
+  Row,
   SortingState,
   VisibilityState,
   flexRender,
@@ -28,18 +29,24 @@ import {
 
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
-interface DataTableProps<TData, TValue> {
+import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
+export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  data: TData[],
+  // onDelete: (rows:Row<TData>[])=>void;
+  editable: boolean 
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  editable,
+  // onDelete
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+    React.useState<VisibilityState>({ id:false})
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
@@ -54,7 +61,6 @@ export function DataTable<TData, TValue>({
       rowSelection,
       columnFilters,
     },
-    enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -65,13 +71,15 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    
   })
   const onClick = () => {
     console.log(";")
   }
+  let router = useRouter();
   return (
-    <div className="space-y-4">
-      <DataTableToolbar table={table} />
+    <div className="space-y-4 overflow-hidden">
+      <DataTableToolbar table={table} editable={editable} onDelete={()=>{console.log("deleted")}}/>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -98,9 +106,10 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={()=> router.push("/dashboard/tasks/"+row.getValue("id"))}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}  onClick={()=>{console.log("clicked")}} onContextMenu={()=>{console.log("clicked!!")}}>
+                    <TableCell key={cell.id} >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { faker } from "@faker-js/faker";
+// import { faker } from "@faker-js/faker";
 import { SquareArrowOutUpRight, SlidersHorizontalIcon, Calendar, PhoneCall, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Timeline } from "../../projects/projectid/timeline";
@@ -79,7 +79,7 @@ export default async function Page() {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className=" font-2xl font-bold">
             {" "}
-            Name of the God Dam Project
+            Name of the Task
           </CardTitle>
           <SquareArrowOutUpRight
             size={16}
@@ -89,15 +89,15 @@ export default async function Page() {
         </CardHeader>
         <Separator />
         <CardContent className="space-y-5 py-4">
-          <div className="text-2xl font-medium">project Overview</div>
+          <div className="text-2xl font-medium">Task Overview</div>
           {/* <div className="text-2xl font-bold">£45,231.89</div>
           <p className="text-xs text-muted-foreground">
             +20.1% from last month
           </p> */}
-          <p>{faker.lorem.paragraphs(4)}</p>
+          {/* <p>{faker.lorem.paragraphs(4)}</p>
           <p>{faker.lorem.paragraphs(4)}</p>
           <Separator />
-          <p>{faker.lorem.paragraphs(4)}</p>
+          <p>{faker.lorem.paragraphs(4)}</p> */}
           {/* <div className="flex">
           <ProjectStats1/><ProjectStats2/><ProjectStats3/><ProjectStats3/></div> */}
         </CardContent>
@@ -106,7 +106,7 @@ export default async function Page() {
         <Card className="h-[350px] mb-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              <div className="text-xl ">Project Overview</div>
+              <div className="text-xl ">Tasks Overview</div>
             </CardTitle>
             <button>
               <SlidersHorizontalIcon

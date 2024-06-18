@@ -4,6 +4,7 @@ import {
   CardContent,
   CardDescription,
   CardFooter,
+
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -12,10 +13,18 @@ import { Overview } from "./components/overview";
 import { RecentSales } from "./components/recent-sales";
 import { CalendarDateRangePicker } from "@/components/custom/date-range-picker";
 import { KPIOverview } from "./components/kpi-overview";
+import prisma from "../db";
+import { DataTable } from "./tasks/components/data-table";
+import { columns } from "./tasks/components/columns";
+import { SquareArrowOutUpRight } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+async function getTask() {
+  return await prisma.task.findMany({ include: { assignee: true } })
+}
 export default async function Dashboard() {
   // const { userId } = auth();
   // const p = await currentUser();
-
+  let tasks = await getTask();
   return (
     <div>
       <div className="flex items-center justify-between space-y-1 pb-2 pt-0 ">
@@ -30,7 +39,7 @@ export default async function Dashboard() {
       <Tabs defaultValue="overview" className="">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="password">Password</TabsTrigger>
+          <TabsTrigger value="personal">Personal</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -165,8 +174,284 @@ export default async function Dashboard() {
           </div>
         </TabsContent>
 
-        <TabsContent value="password">
-          <ol className="relative border-s border-gray-200 dark:border-gray-700">
+        <TabsContent value="personal">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Tasks
+                </CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </CardHeader>
+              <CardContent className="pb-1">
+                <div className="text-2xl font-bold">30</div>
+                <p className="text-xs text-muted-foreground">
+                  +3 from last week
+                </p>
+              </CardContent>
+              <CardFooter className="pt-0 pb-3">
+              <Progress value={75} aria-label="12% increase" />
+            </CardFooter>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Outstanding Tasks
+                </CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">30</div>
+                <p className="text-xs text-muted-foreground">
+                  10 overdue
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="row-span-2 col-span-2">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Outstanding Tasks
+                </CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">30</div>
+                <p className="text-xs text-muted-foreground">
+                  10 overdue
+                </p>
+              </CardContent>
+            </Card><Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Time Tracked
+                </CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">150h</div>
+                <p className="text-xs text-muted-foreground">
+                  +10 from last week
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Revenue Collected
+                </CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">£3,256</div>
+                <p className="text-xs text-muted-foreground">
+                  - £1,021 from last month
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-6 sm:grid-cols-2">
+            <div className="col-span-1 space-y-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Documents</CardTitle>
+                  <SquareArrowOutUpRight
+                    size={16}
+                    strokeWidth={2}
+                    color="rgb(100, 116, 139)"
+                  />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-xl font-bold">152</div>
+                  <p className="text-xs text-muted-foreground">
+                    +20 from last month
+                  </p>
+                </CardContent>
+              </Card>
+              <Card >
+                <CardHeader className="pb-0">
+                  <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Milestones</CardTitle>
+                    <SquareArrowOutUpRight
+                      size={16}
+                      strokeWidth={2}
+                      color="rgb(100, 116, 139)"
+                    />
+                  </div>
+                  {/* <CardDescription>This Month</CardDescription> */}
+                  <CardTitle className="text-xl font-bold">23.5%</CardTitle>
+                </CardHeader>
+                <CardContent className="pb-3 pt-0">
+                  <div className="text-xs text-muted-foreground">
+                    +10% from last month
+                  </div>
+                </CardContent>
+                <CardFooter className="pt-0 pb-3">
+                  <Progress value={23.5} aria-label="12% increase" />
+                </CardFooter>
+              </Card>
+
+              <Card >
+                <CardHeader className="pb-0">
+                  <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Tasks</CardTitle>
+                    <SquareArrowOutUpRight
+                      size={16}
+                      strokeWidth={2}
+                      color="rgb(100, 116, 139)"
+                    />
+                  </div>
+                  {/* <CardDescription>This Month</CardDescription> */}
+                  <CardTitle className="text-xl font-bold">75.5%</CardTitle>
+                </CardHeader>
+                <CardContent className="pb-3 pt-0">
+                  <div className="text-xs text-muted-foreground">
+                    +10% from last month
+                  </div>
+                </CardContent>
+                <CardFooter className="pt-0 pb-3">
+                  <Progress value={75.5} aria-label="12% increase" />
+                </CardFooter>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Events</CardTitle>
+                  <SquareArrowOutUpRight
+                    size={16}
+                    strokeWidth={2}
+                    color="rgb(100, 116, 139)"
+                  />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-xl font-bold">+152</div>
+                  <p className="text-xs text-muted-foreground">
+                    +20.1% from last month
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Reviews</CardTitle>
+                  <SquareArrowOutUpRight
+                    size={16}
+                    strokeWidth={2}
+                    color="rgb(100, 116, 139)"
+                  />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-xl font-bold">+152</div>
+                  <p className="text-xs text-muted-foreground">
+                    +20.1% from last month
+                  </p>
+                </CardContent>
+              </Card><Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                  <CardTitle className="text-sm font-medium">Client Portal</CardTitle>
+                  <SquareArrowOutUpRight
+                    size={16}
+                    strokeWidth={2}
+                    color="rgb(100, 116, 139)"
+                  />
+                </CardHeader>
+
+              </Card>
+              {/* two basic hyperlinks at the bottom to something */}
+              <div className="space-y-2">
+                <Card className="py-1">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 py-0">
+                    <CardTitle className="text-sm font-medium p-0">
+                      Activity Logs
+                    </CardTitle>
+                    <SquareArrowOutUpRight
+                      size={16}
+                      strokeWidth={2}
+                      color="rgb(100, 116, 139)"
+                    />
+                  </CardHeader>
+                </Card>
+                <Card className="py-1">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 py-0">
+                    <CardTitle className="text-sm font-medium p-0">
+                      Settings
+                    </CardTitle>
+                    <SquareArrowOutUpRight
+                      size={16}
+                      strokeWidth={2}
+                      color="rgb(100, 116, 139)"
+                    />
+                  </CardHeader>
+                </Card>
+              </div>
+            </div>
+            <Card className="lg:col-span-5 sm:col-span-1">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-2xl font-medium">Tasks</CardTitle>
+                <SquareArrowOutUpRight
+                  size={16}
+                  strokeWidth={2}
+                  color="rgb(100, 116, 139)"
+                />
+              </CardHeader>
+              <CardContent>
+                <DataTable data={tasks} columns={columns} editable={false} />
+              </CardContent>
+            </Card>
+          </div>
+          {/* <ol className="relative border-s border-gray-200 dark:border-gray-700">
             <li className="mb-10 ms-4">
               <div className="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white dark:border-gray-900 dark:bg-gray-700"></div>
               <time className="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
@@ -229,7 +514,7 @@ export default async function Dashboard() {
                 elements built on top of Tailwind CSS.
               </p>
             </li>
-          </ol>
+          </ol> */}
         </TabsContent>
       </Tabs>
     </div>

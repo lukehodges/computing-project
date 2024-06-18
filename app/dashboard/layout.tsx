@@ -1,12 +1,4 @@
 "use client";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
 
 import useIsCollapsed from "@/hooks/use-is-collapsed";
 import Sidebar from "@/components/sidebar";
@@ -16,7 +8,6 @@ import { Search } from "@/components/search";
 import ThemeSwitch from "@/components/theme-switch";
 import { UserNav } from "@/components/user-nav";
 import TeamSwitcher from "./components/team-switcher";
-import "@bitnoi.se/react-scheduler/dist/style.css";
 export default function RootLayout({
   children,
 }: {

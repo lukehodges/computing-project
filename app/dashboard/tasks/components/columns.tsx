@@ -9,7 +9,16 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import type { Task, User } from "@prisma/client"
 import prisma from "@/app/db"
-
+import { redirect, RedirectType, useRouter } from "next/navigation"
+// let router = useRouter()
+// function redirect() {
+//   router.push("/admin")
+// }
+function pushing(row) {
+  console.log(row)
+  redirect("/admin")
+  console.log("pushed")
+}
 export const columns: ColumnDef<Task>[] = [
   {
     id: "select",
@@ -35,15 +44,15 @@ export const columns: ColumnDef<Task>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  // {
-  //   accessorKey: "id",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Task" />
-  //   ),
-  //   cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
+  {
+    accessorKey: "id",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Task" />
+    ),
+    cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
+    enableSorting: false,
+    enableHiding: true,
+  },
   {
     accessorKey: "title",
     header: ({ column }) => (
@@ -53,7 +62,7 @@ export const columns: ColumnDef<Task>[] = [
       // const label = labels.find((label) => label.value === row.original.label)
 
       return (
-        <div className="flex space-x-2">
+        <div className="flex space-x-2" onClick={()=>(pushing(row))}>
           {/* {label && <Badge variant="outline">{label.label}</Badge>} */}
           <span className="max-w-[500px] truncate font-medium">
             {row.getValue("title")}

@@ -5,6 +5,8 @@ import prisma from "@/app/db";
 import { CalendarDateRangePicker } from "@/components/custom/date-range-picker";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import  TaskPopup from "./components/new-task-popup";
+import { POST } from "@/app/api/tasks/route";
 
 // Simulate a database read for tasks.
 async function getTasks() {
@@ -29,10 +31,11 @@ export default async function TaskPage() {
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Tasks</h1>
         <div className="flex items-center space-x-2">
           <CalendarDateRangePicker />
-          <Button>Add Task</Button>
+          <TaskPopup>
+          <Button>Add Task</Button></TaskPopup>
         </div>
       </div>
-          <DataTable data={tasks} columns={columns}/>
+          <DataTable data={tasks} columns={columns} editable={true}/>
     </div>
   );
 }

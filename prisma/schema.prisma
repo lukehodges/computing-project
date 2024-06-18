@@ -36,7 +36,7 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author    User     @relation(fields: [authorId], references: [id])
-  task      Task     @relation(fields: [taskId], references: [id])
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Company {
@@ -89,7 +89,7 @@ model File {
   updatedAt  DateTime  @default(now())
   document   Document? @relation(fields: [documentId], references: [id])
   project    Project?  @relation(fields: [projectId], references: [id])
-  task       Task?     @relation(fields: [taskId], references: [id])
+  task       Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Invoice {
@@ -159,7 +159,7 @@ model Task {
   content        String?
   comments       Comment[]
   files          File[]
-  parentTask     Task?       @relation("Subtasks", fields: [parentTaskId], references: [id])
+  parentTask     Task?       @relation("Subtasks", fields: [parentTaskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   subtasks       Task[]      @relation("Subtasks")
   project        Project?    @relation(fields: [projectId], references: [id])
   timeEntries    TimeEntry[]
@@ -178,7 +178,7 @@ model TimeEntry {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   project     Project? @relation(fields: [projectId], references: [id])
-  task        Task     @relation(fields: [taskId], references: [id])
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user        User     @relation(fields: [userId], references: [id])
 }
 

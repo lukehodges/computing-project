@@ -10,7 +10,6 @@ import {
 import { DataTable } from "../../tasks/components/data-table";
 import { columns } from "../../tasks/components/columns";
 import { Separator } from "@/components/ui/separator";
-import { faker } from "@faker-js/faker";
 import { ProjectStats1, ProjectStats2, ProjectStats3 } from "./project-stats";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,6 +28,8 @@ import {
   Star,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import dynamic from "next/dynamic";
+const Editor = dynamic(() => import("../../editor/editor"), { ssr: false });
 async function getTasks() {
   return await prisma.task.findMany({});
 }
@@ -44,6 +45,9 @@ async function getTimeline() {
         </div>
       ),
       isActive: true,
+      isActiveBullet:false,
+      bulletSize:25,
+      lineSize:10
     },
     {
       title: "milestone number 1",
@@ -55,6 +59,9 @@ async function getTimeline() {
         </div>
       ),
       isActive: false,
+      isActiveBullet:false,
+      bulletSize:25,
+      lineSize:10
     },
     {
       title: "meeting number 1",
@@ -66,7 +73,9 @@ async function getTimeline() {
         </div>
       ),
       isActive: true,
-      isActiveBullet: true,
+      isActiveBullet:false,
+      bulletSize:25,
+      lineSize:10
     },
     {
       title: "meeting number 1",
@@ -74,6 +83,8 @@ async function getTimeline() {
       children: <div>Details of Step 3</div>,
       isActive: true,
       isActiveBullet: true,
+      bulletSize:25,
+      lineSize:10
     },
     {
       title: "meeting number 1",
@@ -81,6 +92,8 @@ async function getTimeline() {
       children: <div>Details of Step 3</div>,
       isActive: true,
       isActiveBullet: true,
+      bulletSize:25,
+      lineSize:10
     },
   ];
   return items;
@@ -104,18 +117,9 @@ export default async function ProjectPage() {
             />
           </CardHeader>
           <Separator />
-          <CardContent className="space-y-5 py-4">
+          <CardContent className="space-y-5 py-4 flex-none overflow-hidden">
             <div className="text-2xl font-medium">project Overview</div>
-            {/* <div className="text-2xl font-bold">£45,231.89</div>
-            <p className="text-xs text-muted-foreground">
-              +20.1% from last month
-            </p> */}
-            <p>{faker.lorem.paragraphs(4)}</p>
-            <p>{faker.lorem.paragraphs(4)}</p>
-            <Separator />
-            <p>{faker.lorem.paragraphs(4)}</p>
-            {/* <div className="flex">
-            <ProjectStats1/><ProjectStats2/><ProjectStats3/><ProjectStats3/></div> */}
+            <Editor/>
           </CardContent>
         </Card>
         <div className="lg:col-span-2 sm:col-span-1">
@@ -359,7 +363,7 @@ export default async function ProjectPage() {
             />
           </CardHeader>
           <CardContent>
-            <DataTable data={tasks} columns={columns} />
+            <DataTable data={tasks} columns={columns} editable={true} />
           </CardContent>
         </Card>
       </div>

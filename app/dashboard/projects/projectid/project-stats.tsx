@@ -33,7 +33,7 @@ export function ProjectStats1() {
     startAngle={180} 
     endAngle={0}
   >
-    <RadialBar minAngle={15} label={{ fill: '#666', position: 'insideStart' }} background clockWise={true} dataKey='uv' legendType="none"/>
+    <RadialBar  label={{ fill: '#666', position: 'insideStart' }} background  dataKey='uv' legendType="none"/>
     <Legend iconSize={10} width={120} height={140} layout='vertical' verticalAlign='middle' align="right" />
     <Tooltip />
   </RadialBarChart>
@@ -48,7 +48,7 @@ export function ProjectStats2() {
   startAngle={180} 
   endAngle={0}
 >
-  <RadialBar minAngle={15} label={{ fill: '#666', position: 'insideStart' }} background clockWise={true} dataKey='uv' legendType="none"/>
+  <RadialBar  label={{ fill: '#666', position: 'insideStart' }} background  dataKey='uv' legendType="none"/>
   <Legend iconSize={10} width={120} height={140} layout='vertical' verticalAlign='middle' align="right" />
   <Tooltip />
 </RadialBarChart>
@@ -64,7 +64,7 @@ export function ProjectStats3() {
   endAngle={0}
   
 >
-  <RadialBar minAngle={15} label={{ fill: '#666', position: 'insideStart' }} background clockWise={true} dataKey='pv' legendType="none"/>
+  <RadialBar label={{ fill: '#666', position: 'insideStart' }} background dataKey='pv' legendType="none"/>
   <Legend iconSize={10} width={120} height={140} layout='radial' verticalAlign='middle' align="left" />
   <Tooltip />
 </RadialBarChart>
