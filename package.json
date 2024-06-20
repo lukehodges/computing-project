@@ -33,8 +33,10 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
+    "faker": "^5.5.3",
     "lucide-react": "^0.381.0",
     "next": "^14.2.3",
+    "prisma": "^5.15.1",
     "react-day-picker": "^8.10.1",
     "react-hook-form": "^7.51.5",
     "recharts": "^2.12.7",
@@ -43,8 +45,11 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/node": "20.13.0",
+    "@faker-js/faker": "^8.4.1",
+    "@types/node": "^20.13.0",
     "@types/react": "18.3.3",
-    "typescript": "5.4.5"
-  }
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "prisma": { "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts" }
 }

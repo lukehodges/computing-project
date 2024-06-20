@@ -1,5 +1,5 @@
 import { PrismaClient, TaskStatus } from "@prisma/client";
-import { faker } from "@faker-js/faker";
+import { Faker, faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
 
@@ -27,10 +27,11 @@ async function createUsers() {
     return userIds;
 }
 
-async function createTasks(userIds: readonly (string | undefined)[]) {
+async function createTasks(userIds:string[]) {
     for (let i = 0; i < 100; i++) {
         await prisma.task.create({
             data: {
+                id:i,
                 title: faker.lorem.sentence(),
                 description: faker.lorem.sentence(2),
                 status: faker.helpers.enumValue(TaskStatus),
@@ -41,9 +42,8 @@ async function createTasks(userIds: readonly (string | undefined)[]) {
                 createdAt: faker.date.past(),
                 updatedAt: faker.date.recent(),
                 startDate: faker.date.soon(),
-                assignee: { connect: { id: faker.helpers.arrayElement(userIds) } }
-            }
-        });
+                assignees: { connect:faker.helpers.arrayElements(userIds,faker.number.int({min:1, max:3})).map(id=>({id}))}
+    }});
     }
 }
 
@@ -65,6 +65,7 @@ async function createCompanies(userIds: readonly string[]) {
             data: {
                 name: faker.company.name(),
                 createdAt: faker.date.past(),
+                
             }
         });
     }
@@ -110,11 +111,12 @@ async function createProjects(userIds: readonly string[]) {
 }
 
 async function createComments(userIds: readonly string[]) {
+    let tasks = await prisma.task.findMany({})
     for (let i = 0; i < 100; i++) {
         await prisma.comment.create({
             data: {
                 content: faker.lorem.sentence(),
-                taskId: faker.number.int({ min: 1, max: 100 }),
+                taskId: faker.helpers.arrayElement(tasks).id,
                 authorId: faker.helpers.arrayElement(userIds),
                 createdAt: faker.date.past(),
                 updatedAt: faker.date.recent()
@@ -124,17 +126,41 @@ async function createComments(userIds: readonly string[]) {
 }
 
 async function createTimeEntries(userIds: readonly string[]) {
+    let tasks = await prisma.task.findMany({})
+    let project = await prisma.project.findMany({})
     for (let i = 0; i < 100; i++) {
         await prisma.timeEntry.create({
             data: {
                 userId: faker.helpers.arrayElement(userIds),
-                taskId: faker.number.int({ min: 1, max: 100 }),
-                projectId: faker.number.int({ min: 1, max: 10 }),
+                taskId: faker.helpers.arrayElement(tasks).id,
+                projectId: faker.helpers.arrayElement(project).id,
                 date: faker.date.past(),
                 hours: faker.number.float({ min: 1, max: 8 }),
                 description: faker.lorem.sentence(),
                 createdAt: faker.date.past(),
                 updatedAt: faker.date.recent()
+            }
+        });
+    }
+}
+async function createTags() {
+    let clients = await prisma.client.findMany({})
+    let projects = await prisma.project.findMany({})
+    let tasks = await prisma.task.findMany({})
+    for (let i = 0; i < 10; i++) {
+        await prisma.tag.create({
+            data: {
+                name:faker.word.words(2),
+                color:faker.internet.color(),
+                tasks:{
+                    connect:faker.helpers.arrayElements(tasks,faker.number.int({min:5,max:40})).map(task=>({id:task.id}))
+                },
+                projects:{
+                    connect:faker.helpers.arrayElements(projects,3).map(project=>({id:project.id}))
+                },
+                clients:{
+                    connect:faker.helpers.arrayElements(clients,3).map(client=>({id:client.id}))
+                }
             }
         });
     }
@@ -150,7 +176,7 @@ async function main() {
     await prisma.project.deleteMany({});
     await prisma.comment.deleteMany({});
     await prisma.timeEntry.deleteMany({});
-
+    await prisma.tag.deleteMany({});
     const userIds = await createUsers();
 
     await createTasks(userIds);
@@ -161,6 +187,7 @@ async function main() {
     await createProjects(userIds);
     await createComments(userIds);
     await createTimeEntries(userIds);
+    await createTags();
 }
 
 main()

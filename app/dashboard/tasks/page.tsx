@@ -13,7 +13,7 @@ async function getTasks() {
   
   let p = performance.now()
   let P = await prisma.task.findMany({include: {
-    assignee:true
+    assignees:true
   }
   });
   let z = performance.now()

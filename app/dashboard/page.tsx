@@ -4,7 +4,6 @@ import {
   CardContent,
   CardDescription,
   CardFooter,
-
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -16,15 +15,23 @@ import { KPIOverview } from "./components/kpi-overview";
 import prisma from "../db";
 import { DataTable } from "./tasks/components/data-table";
 import { columns } from "./tasks/components/columns";
-import { SquareArrowOutUpRight } from "lucide-react";
+import { FileIcon, InboxIcon, SquareArrowOutUpRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { IconNotification } from "@tabler/icons-react";
+import { BellIcon, CalendarIcon } from "@radix-ui/react-icons";
 async function getTask() {
-  return await prisma.task.findMany({ include: { assignee: true } })
+  return await prisma.task.findMany({ include: { assignees: true } });
 }
 export default async function Dashboard() {
   // const { userId } = auth();
   // const p = await currentUser();
   let tasks = await getTask();
+
+  let lastweek = tasks.filter(
+    (task) =>
+      task.createdAt >= new Date(new Date().setDate(new Date().getDate() - 7))
+  ).length;
+  let outstandign = tasks.filter((task) => task.status == "DONE").length;
   return (
     <div>
       <div className="flex items-center justify-between space-y-1 pb-2 pt-0 ">
@@ -195,13 +202,12 @@ export default async function Dashboard() {
                 </svg>
               </CardHeader>
               <CardContent className="pb-1">
-                <div className="text-2xl font-bold">30</div>
+                <div className="text-2xl font-bold">{tasks.length}</div>
                 <p className="text-xs text-muted-foreground">
-                  +3 from last week
+                  +{lastweek} from last week
                 </p>
               </CardContent>
-              <CardFooter className="pt-0 pb-3">
-            </CardFooter>
+              <CardFooter className="pt-0 pb-3"></CardFooter>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -222,12 +228,11 @@ export default async function Dashboard() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">30</div>
-                <p className="text-xs text-muted-foreground">
-                  10 overdue
-                </p>
+                <div className="text-2xl font-bold">{outstandign}</div>
+                <p className="text-xs text-muted-foreground">10 overdue</p>
               </CardContent>
-            </Card><Card>
+            </Card>
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Time Tracked
@@ -278,28 +283,150 @@ export default async function Dashboard() {
               </CardContent>
             </Card>
           </div>
-          <div className="grid gap-5 lg:grid-cols-6 sm:grid-cols-2">
-            <div className="col-span-1 space-y-4">
+          <div className="grid gap-5 lg:grid-cols-9 sm:grid-cols-2">
+            <div className="col-span-2 space-y-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Documents</CardTitle>
-                  <SquareArrowOutUpRight
+                  <CardTitle className="text-md font-medium">
+                    Notifications
+                  </CardTitle>
+                  <Button variant="ghost" size="md">
+                    Mark all as read
+                  </Button>
+                  <IconNotification
                     size={16}
                     strokeWidth={2}
                     color="rgb(100, 116, 139)"
                   />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xl font-bold">152</div>
-                  <p className="text-xs text-muted-foreground">
-                    +20 from last month
-                  </p>
+                  <div className="w-full max-w-md mx-auto py-4 space-y-4">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium text-muted-foreground">
+                          Today
+                        </div>
+                        <div className="grid gap-4">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                <BellIcon className="h-5 w-5" />
+                              </div>
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-medium">
+                                  New message
+                                </h4>
+                                <p className="text-xs text-muted-foreground">
+                                  10 minutes ago
+                                </p>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                You have a new message from John Doe.
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+                                <CalendarIcon className="h-5 w-5" />
+                              </div>
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-medium">
+                                  Upcoming event
+                                </h4>
+                                <p className="text-xs text-muted-foreground">
+                                  30 minutes ago
+                                </p>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                Your team meeting is scheduled for 2pm today.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium text-muted-foreground">
+                          Yesterday
+                        </div>
+                        <div className="grid gap-4">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                                <InboxIcon className="h-5 w-5" />
+                              </div>
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-medium">
+                                  New email
+                                </h4>
+                                <p className="text-xs text-muted-foreground">
+                                  Yesterday, 5:30 PM
+                                </p>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                You have a new email from Jane Smith.
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                                <FileIcon className="h-5 w-5" />
+                              </div>
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-medium">
+                                  New file
+                                </h4>
+                                <p className="text-xs text-muted-foreground">
+                                  Yesterday, 3:00 PM
+                                </p>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                A new file has been added to your project.
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                                <FileIcon className="h-5 w-5" />
+                              </div>
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-medium">
+                                  New file
+                                </h4>
+                                <p className="text-xs text-muted-foreground">
+                                  Yesterday, 3:00 PM
+                                </p>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                A new file has been added to your project.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-              <Card >
+              <Card>
                 <CardHeader className="pb-0">
                   <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Milestones</CardTitle>
+                    <CardTitle className="text-sm font-medium">
+                      Milestones
+                    </CardTitle>
                     <SquareArrowOutUpRight
                       size={16}
                       strokeWidth={2}
@@ -319,7 +446,7 @@ export default async function Dashboard() {
                 </CardFooter>
               </Card>
 
-              <Card >
+              <Card>
                 <CardHeader className="pb-0">
                   <div className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Tasks</CardTitle>
@@ -342,46 +469,16 @@ export default async function Dashboard() {
                 </CardFooter>
               </Card>
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Events</CardTitle>
-                  <SquareArrowOutUpRight
-                    size={16}
-                    strokeWidth={2}
-                    color="rgb(100, 116, 139)"
-                  />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl font-bold">+152</div>
-                  <p className="text-xs text-muted-foreground">
-                    +20.1% from last month
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Reviews</CardTitle>
-                  <SquareArrowOutUpRight
-                    size={16}
-                    strokeWidth={2}
-                    color="rgb(100, 116, 139)"
-                  />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl font-bold">+152</div>
-                  <p className="text-xs text-muted-foreground">
-                    +20.1% from last month
-                  </p>
-                </CardContent>
-              </Card><Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                  <CardTitle className="text-sm font-medium">Client Portal</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Client Portal
+                  </CardTitle>
                   <SquareArrowOutUpRight
                     size={16}
                     strokeWidth={2}
                     color="rgb(100, 116, 139)"
                   />
                 </CardHeader>
-
               </Card>
               {/* two basic hyperlinks at the bottom to something */}
               <div className="space-y-2">
@@ -411,7 +508,7 @@ export default async function Dashboard() {
                 </Card>
               </div>
             </div>
-            <Card className="lg:col-span-5 sm:col-span-1">
+            <Card className="lg:col-span-7 sm:col-span-1">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-2xl font-medium">Tasks</CardTitle>
                 <SquareArrowOutUpRight

@@ -55,17 +55,17 @@ export const statuses = [
 export const priorities = [
   {
     label: 'Low',
-    value: 'low',
+    value: 1,
     icon: ArrowDownIcon,
   },
   {
     label: 'Medium',
-    value: 'medium',
+    value: 2,
     icon: ArrowRightIcon,
   },
   {
-    label: 'High',
-    value: 'high',
+    label: 'Higsh',
+    value: 3,
     icon: ArrowUpIcon,
   },
 ]

@@ -72,17 +72,17 @@ export const priorities = [
 export const priorities_table = [
   {
     label: "Low",
-    value: "1",
+    value: 1,
     icon: ArrowDownIcon,
   },
   {
     label: "Medium",
-    value: "2",
+    value: 2,
     icon: ArrowRightIcon,
   },
   {
     label: "High",
-    value: "3",
+    value: 3,
     icon: ArrowUpIcon,
   },
 ]
