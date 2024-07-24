@@ -18,7 +18,7 @@ model ActivityLog {
 
 model Client {
   id            Int           @id @default(autoincrement())
-  name          String?
+  name          String
   createdAt     DateTime      @default(now())
   documents     Document[]
   invoices      Invoice[]
@@ -41,9 +41,20 @@ model Comment {
 
 model Contact {
   id         Int    @id @default(autoincrement())
-  client     Client @relation(fields: [clientId], references: [id])
+  client     Client? @relation(fields: [clientId], references: [id])
   assignedTo User[] @relation("ContactToUser")
-  clientId   Int
+  clientId   Int?
+  firstName  String
+  lastName   String
+  email      String   
+  phoneNumber  String
+  address    String
+  city       String
+  country    String
+  jobTitle   String
+  company    String
+  notes      String
+  
 }
 
 model Pipeline {
@@ -64,10 +75,10 @@ model Stage {
 
 model Opportunity {
   id            Int                  @id @default(autoincrement())
-  title         String?
+  title         String
   createdAt     DateTime             @default(now())
-  monetaryValue Int?
-  confidence    Float?
+  monetaryValue Int
+  confidence    Float
   client        Client[]             @relation("ClientToOpportunity")
   assignedTo    User[]               @relation("OpportunityToUser")
   stage         Stage                @relation(fields: [stageId], references: [id])

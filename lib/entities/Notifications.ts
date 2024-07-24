@@ -32,7 +32,7 @@ export class Notification {
     Invoice = 'Invoice',
     File = 'File',
     Document = 'Document',
-    Deal = 'Deal',
+    Opportunity = 'Opportunity',
     Contact = 'Contact',
     Client = 'Client',
     // Add other entity types as needed
