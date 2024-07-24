@@ -14,6 +14,8 @@ import {
     IconHexagonNumber5,
     IconLayoutDashboard,
     IconMessages,
+    IconMeteor,
+    IconRocket,
     IconRouteAltLeft,
     IconServerOff,
     IconSettings,
@@ -21,6 +23,7 @@ import {
     IconUserShield,
     IconUsers,
   } from '@tabler/icons-react'
+import { Gauge } from 'lucide-react'
   
   export interface NavLink {
     title: string
@@ -47,15 +50,37 @@ import {
       icon: <IconChecklist size={18} />,
     },
     {
-      title: 'Chats',
+      title: 'Performance',
       label: '9',
-      href: '/chats',
+      href: '/dashboard/performance',
+      sub: [
+        {
+          title: 'Leaderboards',
+          href: '/dashboard/leaderboards',
+          icon: <Gauge size={18} />
+        },
+        {
+          title: 'Sales / Daily',
+          href: '/dashboard/leaderboards',
+          icon: <Gauge size={18} />
+        },
+        {
+          title: 'Sales / Weekly',
+          href: '/dashboard/leaderboards',
+          icon: <Gauge size={18} />
+        },
+        {
+          title: 'Sales / Monthly',
+          href: '/dashboard/leaderboards',
+          icon: <Gauge size={18} />
+        }
+      ],
       icon: <IconMessages size={18} />,
     },
     {
-      title: 'Apps',
-      label: '',
-      href: '/apps',
+      title: 'Projects',
+      label: '6',
+      href: '/projects',
       icon: <IconApps size={18} />,
     },
     {

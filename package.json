@@ -10,6 +10,8 @@
     "@blocknote/mantine": "^0.13.4",
     "@blocknote/react": "^0.13.4",
     "@blocknote/shadcn": "^0.13.4",
+    "@devexpress/dx-react-core": "^4.0.8",
+    "@devexpress/dx-react-scheduler": "^4.0.8",
     "@hookform/resolvers": "^3.4.2",
     "@prisma/client": "^5.14.0",
     "@radix-ui/react-avatar": "^1.0.4",
@@ -36,10 +38,12 @@
     "faker": "^5.5.3",
     "lucide-react": "^0.381.0",
     "next": "^14.2.3",
+    "next-themes": "^0.3.0",
     "prisma": "^5.15.1",
     "react-day-picker": "^8.10.1",
     "react-hook-form": "^7.51.5",
     "recharts": "^2.12.7",
+    "sonner": "^1.5.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"
@@ -51,5 +55,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },
-  "prisma": { "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts" }
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  }
 }

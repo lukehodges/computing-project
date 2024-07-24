@@ -1,4 +1,7 @@
 import { Button } from "@/components/custom/button";
+import { CalendarDateRangePicker } from "@/components/custom/date-range-picker";
+import { MultiProgress } from "@/components/custom/multi-stage-progess";
+import NotificationReadButton from "@/components/custom/notifications/mark-as-read";
 import {
   Card,
   CardContent,
@@ -7,31 +10,101 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Overview } from "./components/overview";
-import { RecentSales } from "./components/recent-sales";
-import { CalendarDateRangePicker } from "@/components/custom/date-range-picker";
-import { KPIOverview } from "./components/kpi-overview";
-import prisma from "../db";
-import { DataTable } from "./tasks/components/data-table";
-import { columns } from "./tasks/components/columns";
-import { FileIcon, InboxIcon, SquareArrowOutUpRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getNotificationText, NotificationIcon } from "@/data/icon-types";
+import { Notification } from "@/lib/entities/Notifications";
+import { NotificationUseCases, TaskUseCases } from "@/lib/usecases";
+import { mapEntityToPrismaNotification } from "@/prisma/maps/NotificationMapper";
 import { IconNotification } from "@tabler/icons-react";
-import { BellIcon, CalendarIcon } from "@radix-ui/react-icons";
+import { SquareArrowOutUpRight } from "lucide-react";
+import prisma from "../../lib/db";
+import { columns } from "./tasks/components/columns";
+import { DataTable } from "./tasks/components/data-table";
+import { KPIOverview } from "./components/kpi-overview";
+import { RecentSales } from "./components/recent-sales";
+import { Overview } from "./components/overview";
 async function getTask() {
   return await prisma.task.findMany({ include: { assignees: true } });
 }
+function filterNotificationsHour(notifications: Notification[]) {
+  let currentTime = new Date();
+  let lasthour = new Date();
+  lasthour.setHours(lasthour.getHours() - 1);
+  return notifications.filter(
+    (notification) => notification.createdAt >= lasthour
+  );
+}
+function filterNotificationsToday(notifications: Notification[]) {
+  let currentTime = new Date();
+  let startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  return notifications.filter(
+    (notification) => notification.createdAt >= startOfToday
+  );
+}
+function filterNotificationsYesterday(notifications: Notification[]) {
+  let startOfYesterday = new Date();
+  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+  startOfYesterday.setHours(0, 0, 0, 0);
+  return notifications.filter(
+    (notification) => notification.createdAt >= startOfYesterday
+  );
+}
+function filterNotificationsWeek(notifications: Notification[]) {
+  let startOfWeek = new Date();
+  startOfWeek.setDate(startOfWeek.getDate() - 7);
+  startOfWeek.setHours(0, 0, 0, 0);
+  return notifications.filter(
+    (notification) => notification.createdAt >= startOfWeek
+  );
+}
+
+function filterNotificationsMonth(notifications: Notification[]) {
+  let startofMonth = new Date();
+  startofMonth.setDate(0);
+  startofMonth.setHours(0, 0, 0, 0);
+  return notifications.filter(
+    (notification) => notification.createdAt >= startofMonth
+  );
+}
+function notificatonDifference(...list: Notification[][]): Notification[][] {
+  let results: Notification[][] = [list[0]];
+
+  for (let i = 1; i < list.length - 1; i++) {
+    results.push(
+      list[i].filter((notification) => !list[i - 1].includes(notification))
+    );
+  }
+  return results;
+}
+
 export default async function Dashboard() {
   // const { userId } = auth();
   // const p = await currentUser();
-  let tasks = await getTask();
-
-  let lastweek = tasks.filter(
-    (task) =>
-      task.createdAt >= new Date(new Date().setDate(new Date().getDate() - 7))
+  // let tasks = await TaskUseCases.listTasks();
+  // let notifications = await prisma.notification.findMany({
+  //   orderBy: [{ createdAt: "desc" }],
+  //   where: {
+  //     read: false,
+  //   },
+  // });
+  let tasks = await getTask()
+  let notifications = (await NotificationUseCases.listNotifications()).filter(notification => notification.read === false);
+  let p = notificatonDifference(
+    filterNotificationsHour(notifications),
+    filterNotificationsToday(notifications),
+    filterNotificationsYesterday(notifications),
+    filterNotificationsWeek(notifications),
+    filterNotificationsMonth(notifications),
+    filterNotificationsMonth(notifications)
+  );
+  let [hour, today, yesterday, week, month] = p;
+  console.log(hour);
+  let outstandign = tasks.filter((task) => !(task.status == "DONE")).length;
+  let overdue = tasks.filter(
+    (task) => task.status == "BACKLOG" || task.dueDate < new Date()
   ).length;
-  let outstandign = tasks.filter((task) => task.status == "DONE").length;
   return (
     <div>
       <div className="flex items-center justify-between space-y-1 pb-2 pt-0 ">
@@ -177,7 +250,7 @@ export default async function Dashboard() {
           </div>
           <div className="mb-2 flex items-center justify-between space-y-2"></div>
           <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
-            {/* <DataTable data={tasks} columns={columns} /> */}
+            {/* <DataTable data={tasks} columns={columns} />  */}
           </div>
         </TabsContent>
 
@@ -204,7 +277,7 @@ export default async function Dashboard() {
               <CardContent className="pb-1">
                 <div className="text-2xl font-bold">{tasks.length}</div>
                 <p className="text-xs text-muted-foreground">
-                  +{lastweek} from last week
+                  +{"   "} from last week
                 </p>
               </CardContent>
               <CardFooter className="pt-0 pb-3"></CardFooter>
@@ -229,7 +302,9 @@ export default async function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{outstandign}</div>
-                <p className="text-xs text-muted-foreground">10 overdue</p>
+                <p className="text-xs text-muted-foreground">
+                  {overdue} overdue
+                </p>
               </CardContent>
             </Card>
             <Card>
@@ -287,12 +362,12 @@ export default async function Dashboard() {
             <div className="col-span-2 space-y-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-md font-medium">
+                  <CardTitle className="text-sm font-medium">
                     Notifications
                   </CardTitle>
-                  <Button variant="ghost" size="md">
-                    Mark all as read
-                  </Button>
+                  <NotificationReadButton
+                    data={notifications.map(mapEntityToPrismaNotification)}
+                  />
                   <IconNotification
                     size={16}
                     strokeWidth={2}
@@ -303,50 +378,78 @@ export default async function Dashboard() {
                   <div className="w-full max-w-md mx-auto py-4 space-y-4">
                     <div className="space-y-4">
                       <div className="space-y-2">
+                        {" "}
                         <div className="text-sm font-medium text-muted-foreground">
                           Today
                         </div>
                         <div className="grid gap-4">
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                                <BellIcon className="h-5 w-5" />
+                          {hour?.map((notification) => (
+                            <div
+                              className="flex items-start gap-3"
+                              key={notification.id}
+                            >
+                              <div className="flex-shrink-0">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground  ">
+                                  <NotificationIcon
+                                    className="h-5 w-5"
+                                    status={notification.type.toString()}
+                                  />
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex-1 space-y-1">
-                              <div className="flex items-center justify-between">
-                                <h4 className="text-sm font-medium">
-                                  New message
-                                </h4>
-                                <p className="text-xs text-muted-foreground">
-                                  10 minutes ago
+                              <div className="flex-1 space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="text-sm font-medium">
+                                    {getNotificationText(
+                                      notification.type.toString()
+                                    )}
+                                  </h4>
+                                  <p className="text-xs text-muted-foreground">
+                                    {`${new Date(
+                                      new Date() - notification.createdAt
+                                    ).getMinutes()} minutes ago`}
+                                  </p>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  {notification.message}
                                 </p>
                               </div>
-                              <p className="text-sm text-muted-foreground">
-                                You have a new message from John Doe.
-                              </p>
                             </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
-                                <CalendarIcon className="h-5 w-5" />
+                          ))}
+
+                          {today?.map((notification) => {
+                            return (
+                              <div
+                                className="flex items-start gap-3"
+                                key={notification.id}
+                              >
+                                <div className="flex-shrink-0">
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground  ">
+                                    <NotificationIcon
+                                      className="h-5 w-5"
+                                      status={notification.type.toString()}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex-1 space-y-1">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-medium">
+                                      {getNotificationText(
+                                        notification.type.toString()
+                                      )}
+                                    </h4>
+                                    <p className="text-xs text-muted-foreground">
+                                      {`${new Date(
+                                        new Date() - notification.createdAt
+                                      ).getHours()} hours ago`}
+                                    </p>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">
+                                    {notification.message}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex-1 space-y-1">
-                              <div className="flex items-center justify-between">
-                                <h4 className="text-sm font-medium">
-                                  Upcoming event
-                                </h4>
-                                <p className="text-xs text-muted-foreground">
-                                  30 minutes ago
-                                </p>
-                              </div>
-                              <p className="text-sm text-muted-foreground">
-                                Your team meeting is scheduled for 2pm today.
-                              </p>
-                            </div>
-                          </div>
+                            );
+                          })}
                         </div>
                       </div>
                       <div className="space-y-2">
@@ -354,68 +457,43 @@ export default async function Dashboard() {
                           Yesterday
                         </div>
                         <div className="grid gap-4">
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground">
-                                <InboxIcon className="h-5 w-5" />
+                          {yesterday.map((notification) => {
+                            let hours = new Date(
+                              new Date() - notification.createdAt
+                            )
+                            hours = hours.getHours() + (hours.getDate()-1)*24
+                            return (
+                              <div
+                                className="flex items-start gap-3"
+                                key={notification.id}
+                              >
+                                <div className="flex-shrink-0">
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground  ">
+                                    <NotificationIcon
+                                      className="h-5 w-5"
+                                      status={notification.type.toString()}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex-1 space-y-1">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-medium">
+                                      {getNotificationText(
+                                        notification.type.toString()
+                                      )}
+                                    </h4>
+                                    <p className="text-xs text-muted-foreground">
+                                      {`${hours} hours ago`}
+                                    </p>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">
+                                    {notification.message}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex-1 space-y-1">
-                              <div className="flex items-center justify-between">
-                                <h4 className="text-sm font-medium">
-                                  New email
-                                </h4>
-                                <p className="text-xs text-muted-foreground">
-                                  Yesterday, 5:30 PM
-                                </p>
-                              </div>
-                              <p className="text-sm text-muted-foreground">
-                                You have a new email from Jane Smith.
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                                <FileIcon className="h-5 w-5" />
-                              </div>
-                            </div>
-                            <div className="flex-1 space-y-1">
-                              <div className="flex items-center justify-between">
-                                <h4 className="text-sm font-medium">
-                                  New file
-                                </h4>
-                                <p className="text-xs text-muted-foreground">
-                                  Yesterday, 3:00 PM
-                                </p>
-                              </div>
-                              <p className="text-sm text-muted-foreground">
-                                A new file has been added to your project.
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                                <FileIcon className="h-5 w-5" />
-                              </div>
-                            </div>
-                            <div className="flex-1 space-y-1">
-                              <div className="flex items-center justify-between">
-                                <h4 className="text-sm font-medium">
-                                  New file
-                                </h4>
-                                <p className="text-xs text-muted-foreground">
-                                  Yesterday, 3:00 PM
-                                </p>
-                              </div>
-                              <p className="text-sm text-muted-foreground">
-                                A new file has been added to your project.
-                              </p>
-                            </div>
-                          </div>
+                            );
+                          })}
                         </div>
-                        
                       </div>
                     </div>
                   </div>
@@ -442,7 +520,10 @@ export default async function Dashboard() {
                   </div>
                 </CardContent>
                 <CardFooter className="pt-0 pb-3">
-                  <Progress value={23.5} aria-label="12% increase" />
+                  <MultiProgress
+                    values={[20, 50, 90]}
+                    aria-label="12% increase"
+                  />
                 </CardFooter>
               </Card>
 
@@ -518,10 +599,15 @@ export default async function Dashboard() {
                 />
               </CardHeader>
               <CardContent>
-                <DataTable data={tasks} columns={columns} editable={false} />
+                <DataTable
+                  data={tasks}
+                  columns={columns}
+                  editable={true}
+                />
               </CardContent>
             </Card>
           </div>
+          ;
           {/* <ol className="relative border-s border-gray-200 dark:border-gray-700">
             <li className="mb-10 ms-4">
               <div className="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white dark:border-gray-900 dark:bg-gray-700"></div>

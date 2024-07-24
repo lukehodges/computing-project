@@ -1,3 +1,21 @@
+
+
+
+
+do you need to take notes??
+
+
+
+
+
+
+
+
+
+
+
+
+
 # project outline
 GOALS: create software for agencies to manage their team, tasks, clients and internal projects
 # features
@@ -31,4 +49,5 @@ GOALS: create software for agencies to manage their team, tasks, clients and int
 * client managment
   * List all Clients
   * Client View and Breakdown
-    *  
+*  
+https://devexpress.github.io/devextreme-reactive/react/scheduler/docs/guides/getting-started/

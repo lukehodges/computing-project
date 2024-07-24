@@ -1,4 +1,4 @@
-import prisma from "@/app/db";
+import prisma from "@/lib/db";
 import {
   Card,
   CardContent,
@@ -13,9 +13,9 @@ import { Separator } from "@/components/ui/separator";
 import { ProjectStats1, ProjectStats2, ProjectStats3 } from "./project-stats";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import UserBadge from "./user-badge";
+import UserBadge from "../../../../components/custom/user-badge";
 import { Timeline } from "./timeline";
-import { TimelineItem, TimelineItemProps } from "./TimelineItem";
+import { TimelineItem, TimelineItemProps } from "../../../../components/custom/TimelineItem";
 import {
   Calendar,
   PhoneCall,

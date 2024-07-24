@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker"
-import prisma from "./app/db"
+import prisma from "./lib/db"
 
 const tasks = Array.from({ length: 100 }, () => ({
     title: faker.hacker.phrase().replace(/^./, (letter) => letter.toUpperCase()),

@@ -3,9 +3,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { SquareArrowOutUpRight, SlidersHorizontalIcon, Calendar, PhoneCall, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Timeline } from "../../projects/projectid/timeline";
-import UserBadge from "../../projects/projectid/user-badge";
+import UserBadge from "../../../../components/custom/user-badge";
 import { Separator } from "@/components/ui/separator";
-import { TimelineItemProps } from "../../projects/projectid/TimelineItem";
+import { TimelineItemProps } from "../../../../components/custom/TimelineItem";
 
 async function getTimeline() {
     const items: TimelineItemProps[] = [

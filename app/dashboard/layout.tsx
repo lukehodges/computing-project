@@ -7,7 +7,7 @@ import { Layout, LayoutBody, LayoutHeader } from "@/components/custom/layout";
 import { Search } from "@/components/search";
 import ThemeSwitch from "@/components/theme-switch";
 import { UserNav } from "@/components/user-nav";
-import TeamSwitcher from "./components/team-switcher";
+import { Toaster } from "@/components/ui/toaster";
 export default function RootLayout({
   children,
 }: {
@@ -15,7 +15,7 @@ export default function RootLayout({
 }) {
   const [isCollapsed, setIsCollapsed] = useIsCollapsed();
   
-  return <div className="relative h-full overflow-hidden bg-background">
+  return <div className="relative h-full overflow-hidden bg-background dark:bg-slate-500">
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
 
       <main
@@ -42,6 +42,7 @@ export default function RootLayout({
         {children}
         </LayoutBody>
       </main>
+      <Toaster/>
     </div>
   
 }

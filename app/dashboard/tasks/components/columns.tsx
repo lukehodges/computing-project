@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import type { Task, User } from "@prisma/client";
 import prisma from "@/app/db";
 import { redirect, RedirectType, useRouter } from "next/navigation";
-import UserBadge from "../../projects/projectid/user-badge";
+import UserBadge from "../../../../components/custom/user-badge";
 import {
   Select,
   SelectContent,
@@ -18,10 +18,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import React from "react";
+import {
+  Calculator,
+  CreditCard,
+  Settings,
+  Smile,
+  SquarePlusIcon,
+  User,
+} from "lucide-react";
+import AssigneeAdder from "./assignee-plus-icon";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 // let router = useRouter()
 // function redirect() {
 //   router.push("/admin")
-// }  
+// }
 export const columns: ColumnDef<Task>[] = [
   {
     id: "select",
@@ -81,24 +115,82 @@ export const columns: ColumnDef<Task>[] = [
       <DataTableColumnHeader column={column} title="Assigned To" />
     ),
     cell: ({ row }) => {
-      let users: User[] = row.getValue("assignees");
-      if (users) {
-        return (
-          <div className="flex flex-wrap">
-  {users.map((user) => (
-    <UserBadge
-      className="flex-basis-[150px]" // adjust this value to set the minimum width of each badge
-      name={user.firstName + " " + user.lastName}
-      url={user.image}
-      fallback={user.firstName[0] + user.lastName[0]}
-    />
-  ))}
-</div>
-        );
-      }
-      return <h1>no asissgnee</h1>;
+      let users = row.getValue("assignees");
+      const [isHovered, setIsHovered] = React.useState(false);
+
+      return (
+        <div
+          className="flex flex-wrap relative"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {users &&
+            users.map((user) => (
+              <UserBadge
+                key={user.id}
+                className="flex-basis-[150px]" // adjust this value to set the minimum width of each badge
+                name={user.firstName + " " + user.lastName}
+                url={user.image}
+                fallback={user.firstName[0] + user.lastName[0]}
+              />
+            ))}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="p-0 m-0 b-0"asChild>
+              {isHovered && (
+                <Button
+                  variant="ghost"
+                  className="flex h-8 w-8 p-0 b-0 m-0 data-[state=open]:bg-muted"
+                >
+                  <SquarePlusIcon
+                    className="flex-basis-[150px] text-zinc-950"
+                    strokeWidth={"1px"}
+                  />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-[160px]"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <DropdownMenuItem>Edit </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log("click");
+                }}
+              >
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuItem>Favorite</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  {/* <DropdownMenuRadioGroup value={task.label}>
+                        {labels.map((label) => (
+                          <DropdownMenuRadioItem key={label.value} value={label.value}>
+                            {label.label}
+                          </DropdownMenuRadioItem>
+                        ))}
+                      </DropdownMenuRadioGroup>  */}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                Delete
+                <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      );
     },
   },
+
   {
     accessorKey: "description",
     header: ({ column }) => (

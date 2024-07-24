@@ -1,34 +1,21 @@
 
-import { useState } from "react";
-import {
-  IconAdjustmentsHorizontal,
-  IconSortAscendingLetters,
-  IconSortDescendingLetters,
-} from "@tabler/icons-react";
-import { Layout, LayoutBody, LayoutHeader } from "@/components/custom/layout";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Search } from "@/components/search";
-import ThemeSwitch from "@/components/theme-switch";
-import { UserNav } from "@/components/user-nav";
-import { Button } from "@/components/custom/button";
-import { apps } from "./data";
+import { ProjectUseCases, TagUseCases, TaskUseCases } from "@/lib/usecases";
 import { TableGeneration } from "./table-generator";
 
 
 
-export default function Apps() {
-  
+export default async function Apps() {
+  let p = (await ProjectUseCases.listProjects()).map(ProjectUseCases.serializeProject);
+  let projects = []
+  for (let i = 0; i < p.length; i++) {
+    let k =p[i]
+    k.tags = await (await ProjectUseCases.getTags(k.id)).map(TagUseCases.serializeTag)
+    console.log(k.tags)
+    projects.push(k)
+  } 
   return (
     <div>
-      <TableGeneration />
+      <TableGeneration projects={projects} />
       </div>
   );
 }

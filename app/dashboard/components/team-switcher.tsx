@@ -85,7 +85,6 @@ export default function TeamSwitcher(isCollapsed:SidebarProps, { className }: Te
   const [selectedTeam, setSelectedTeam] = React.useState<Team>(
     groups[0].teams[0]
   )
-  console.log(isCollapsed.isCollapsed)
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
       <Popover open={open} onOpenChange={setOpen} >

@@ -9,8 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { SelectValue } from "@radix-ui/react-select";
-import { useState } from "react";
-import { apps } from "./data";
+import React, { useState } from "react";
 import {
   IconAdjustmentsHorizontal,
   IconRibbonHealth,
@@ -18,31 +17,36 @@ import {
   IconSortDescendingLetters,
 } from "@tabler/icons-react";
 import { Input } from "@/components/ui/input";
+import CreateProjectPopup from "./create-project-popup";
+import { Project } from "@/lib/entities/Project";
+import { ProjectIcons } from "@/lib/iconmaps";
+import  { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 const projectText = new Map<string, string>([
   ["all", "All Projects"],
   ["internal", "Internal"],
   ["client", "Clients"],
 ]);
-
-export function TableGeneration() {
+export function TableGeneration({projects}) {
+  
+const router = useRouter();
   const [sort, setSort] = useState("ascending");
   const [appType, setAppType] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  console.log(searchTerm + " nothing");
-  const filteredApps = apps
-    .sort((a, b) =>
+  const filteredProjects = projects
+    .sort((a: { name: string; }, b: { name: string; }) =>
       sort === "ascending"
         ? a.name.localeCompare(b.name)
         : b.name.localeCompare(a.name)
     )
-    .filter((app) =>
+    .filter((project: { type: string; }) =>
       appType === "internal"
-        ? app.type === "internal"
+        ? project.type === "internal"
         : appType === "client"
-        ? app.type === "client"
+        ? project.type === "client"
         : true
     )
-    .filter((app) => app.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    .filter((app:Project) => app.name.toLowerCase().includes(searchTerm.toLowerCase()));
   return (
     <>
       <LayoutBody className="flex flex-col" fixedHeight>
@@ -54,6 +58,7 @@ export function TableGeneration() {
         </div>
         <div className="my-4 flex items-end justify-between sm:my-0 sm:items-center">
           <div className="flex flex-col gap-4 sm:my-4 sm:flex-row">
+          <CreateProjectPopup ><Button className="h-8 hover:bg-slate-600">Add New</Button></CreateProjectPopup>
             <Input
               placeholder="Filter projects..."
               className="h-9 w-40 lg:w-[250px]"
@@ -96,32 +101,44 @@ export function TableGeneration() {
         </div>
         <Separator className="shadow" />
         <ul className="no-scrollbar grid gap-4 overflow-y-scroll pb-16 pt-4 md:grid-cols-2 lg:grid-cols-4">
-          {filteredApps.map((app) => (
+          {filteredProjects.map((project: any) => (
             <li
-              key={app.name}
+              key={project.id}
               className="rounded-lg border p-4 hover:shadow-md"
+              onClick={() =>
+                router.push(
+                  `/dashboard/projects/${project.id}`
+                )
+              }
             >
               <div className="mb-8 flex items-center justify-between">
                 <div
                   className={`flex size-10 items-center justify-center rounded-lg bg-muted p-2`}
                 >
-                  {app.logo}
+                  {ProjectIcons[project.iconId ? project.iconId : 0]
+                  }
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
                   className={`${
-                    app.type === "client"
+                    project.type === "client"
                       ? "border border-blue-300 bg-blue-50 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:hover:bg-blue-900"
                       : ""
                   }`}
-                >
-                  {app.type === "client" ? "Client" : "Internal"}
+                >Internal
+                  {/* {app. === "client" ? "Client" : "Internal"} */}
                 </Button>
               </div>
               <div>
-                <h2 className="mb-1 font-semibold">{app.name}</h2>
-                <p className="line-clamp-2 text-gray-500">{app.desc}</p>
+                <h2 className="mb-1 font-semibold">{project.name}</h2>
+                <p className="line-clamp-2 text-gray-500">{project.description} </p>
+                <div className="text-xs text-muted-foreground">
+                {project.tags.map((tag) => (
+                  <Badge variant={"outline"} key={tag.id}>{tag.name}</Badge>
+                ))}
+                {/* +20.1% from last month */}
+              </div>
               </div>
             </li>   
           ))}

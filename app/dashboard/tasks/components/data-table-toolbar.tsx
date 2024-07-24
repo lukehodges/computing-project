@@ -1,15 +1,14 @@
 "use client"
 
-import { ButtonIcon, Cross2Icon } from "@radix-ui/react-icons"
-import { Row, Table } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { priorities, priorities_table, statuses } from "../data/data"
+import { Cross2Icon } from "@radix-ui/react-icons"
+import { Row, Table } from "@tanstack/react-table"
+import { useRouter } from "next/navigation"
+import { priorities_table, statuses } from "../data/data"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { DataTableViewOptions } from "./data-table-view-options"
-import prisma from "@/app/db"
 import TaskPopup from "./new-task-popup"
-import { useRouter } from "next/navigation"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>,
@@ -18,7 +17,6 @@ interface DataTableToolbarProps<TData> {
 }
 
 async function deleteTasks<TData>(data: Table<TData>, router: ReturnType<typeof useRouter>) {
-  console.log("deleting")
   const ids = data.getSelectedRowModel().flatRows.map(row => row.original.id);
 
   const deletePromises = ids.map(async id =>
@@ -30,7 +28,6 @@ async function deleteTasks<TData>(data: Table<TData>, router: ReturnType<typeof 
   await Promise.all(deletePromises);
 
   // Handle successful deletion, maybe refresh data or call a callback
-  console.log('Deleted successfully');
   data.toggleAllPageRowsSelected(false)
   router.refresh();
 }

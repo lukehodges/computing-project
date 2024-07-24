@@ -8,15 +8,16 @@ import {
   Star,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Timeline } from "../../projects/projectid/timeline";
-import UserBadge from "../../projects/projectid/user-badge";
+import UserBadge from "../../../../components/custom/user-badge";
 import { Separator } from "@/components/ui/separator";
-import { TimelineItemProps } from "../../projects/projectid/TimelineItem";
+import { TimelineItemProps } from "../../../../components/custom/TimelineItem";
 import { useRouter } from "next/router";
 import { Task } from "@prisma/client";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { report } from "process";
-import prisma from "@/app/db";
+import { TaskUseCases } from "@/lib/usecases/index";
+import prisma from "@/lib/db";
+import { Timeline } from "@/components/custom/timeline";
 
 async function getTimeline() {
   const items: TimelineItemProps[] = [
@@ -83,22 +84,19 @@ async function getTimeline() {
   ];
   return items;
 }
-async function getTaskData(id: number) {
-  let user = await prisma.task.findUnique({
-    where: {
-      id: id,
-    },
-    include: {
-      tags: true,
-      assignees: true,
-      project: true,
-    },
-  });
-  return user;
-}
 export default async function Page({ params }: { params: { taskid: string } }) {
+  
   let updates = await getTimeline();
-  let task = await getTaskData(Number(params.taskid))
+  let task = await TaskUseCases.getTaskById(Number(params.taskid))
+  if (!task) {
+    return (
+      <div>
+        <h1>Task not found</h1>
+      </div>
+    );
+  }
+  let assignees = await TaskUseCases.getAssignees(Number(params.taskid))
+  let tags = await TaskUseCases.getTags(Number(params.taskid))
   return (
     <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-7 mb-4">
       <Card className="lg:col-span-5 h-[815px] sm:col-span-1">
@@ -165,7 +163,7 @@ export default async function Page({ params }: { params: { taskid: string } }) {
             <div className="text-lg ">
               Task Type
               <div className="text-xs text-muted-foreground">
-                {task?.tags.map((tag) => (
+                {tags.map((tag) => (
                   <Badge variant={"outline"} key={tag.id}>{tag.name}</Badge>
                 ))}
                 {/* +20.1% from last month */}
@@ -175,7 +173,7 @@ export default async function Page({ params }: { params: { taskid: string } }) {
               Assigned To
               <div className="text-xs text-muted-foreground">
                 <div className="flex">
-                  {task?.assignees.map((user) => (
+                  {assignees.map((user) => (
                     <UserBadge
                     key={user.id}
                     name={user.firstName+" " + user.lastName}

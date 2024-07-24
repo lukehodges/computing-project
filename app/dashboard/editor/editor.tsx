@@ -19,6 +19,8 @@ export default function App() {
           // Otherwise, the default ShadCN components will be used.
         }
       }
+      content="hello"
+      
       theme={"light"}
       className="ignore-css"
     />

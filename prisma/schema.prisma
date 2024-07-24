@@ -9,7 +9,7 @@ datasource db {
 
 model ActivityLog {
   id        Int      @id @default(autoincrement())
-  userId    String
+  userId    Int
   action    String
   details   String?
   createdAt DateTime @default(now())
@@ -17,50 +17,77 @@ model ActivityLog {
 }
 
 model Client {
-  id        Int        @id @default(autoincrement())
-  name      String?
-  createdAt DateTime   @default(now())
-  documents Document[]
-  invoices  Invoice[]
-  tags      Tag[]      @relation("ClientTags")
-  company   Company[]  @relation("ClientToCompany")
-  deals     Deal[]     @relation("ClientToDeal")
-  assigned  User[]     @relation("ClientToUser")
+  id            Int           @id @default(autoincrement())
+  name          String?
+  createdAt     DateTime      @default(now())
+  documents     Document[]
+  invoices      Invoice[]
+  tags          Tag[]         @relation("ClientTags")
+  contacts      Contact[]
+  opportunities Opportunity[] @relation("ClientToOpportunity")
+  assigned      User[]        @relation("ClientToUser")
 }
 
 model Comment {
   id        Int      @id @default(autoincrement())
   content   String
   taskId    Int
-  authorId  String
+  authorId  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-model Company {
-  id        Int       @id @default(autoincrement())
-  name      String?
-  createdAt DateTime  @default(now())
-  client    Client[]  @relation("ClientToCompany")
-  contacts  Contact[] @relation("CompanyToContact")
-}
-
 model Contact {
-  id         Int       @id @default(autoincrement())
-  companies  Company[] @relation("CompanyToContact")
-  assignedTo User[]    @relation("ContactToUser")
+  id         Int    @id @default(autoincrement())
+  client     Client @relation(fields: [clientId], references: [id])
+  assignedTo User[] @relation("ContactToUser")
+  clientId   Int
 }
 
-model Deal {
-  id         Int      @id @default(autoincrement())
-  name       String?
-  createdAt  DateTime @default(now())
-  value      Int?
-  confidence Float?
-  client     Client[] @relation("ClientToDeal")
-  assignedTo User[]   @relation("DealToUser")
+model Pipeline {
+  id            Int           @id @default(autoincrement())
+  name          String
+  stages        Stage[]
+  opportunities Opportunity[]
+}
+
+model Stage {
+  id            Int           @id @default(autoincrement())
+  name          String
+  pipeline      Pipeline      @relation(fields: [pipelineId], references: id)
+  pipelineId    Int
+  order         Int
+  opportunities Opportunity[]
+}
+
+model Opportunity {
+  id            Int                  @id @default(autoincrement())
+  title         String?
+  createdAt     DateTime             @default(now())
+  monetaryValue Int?
+  confidence    Float?
+  client        Client[]             @relation("ClientToOpportunity")
+  assignedTo    User[]               @relation("OpportunityToUser")
+  stage         Stage                @relation(fields: [stageId], references: [id])
+  stageId       Int
+  pipeline      Pipeline             @relation(fields: [pipelineId], references: [id])
+  pipelineId    Int
+  payments      OpportunityPayment[]
+}
+
+model OpportunityPayment {
+  id          Int           @id @default(autoincrement())
+  title       String
+  opportunity Opportunity[]
+  paymentDate DateTime
+  paymentType PaymentType
+}
+
+enum PaymentType {
+  ONE_TIME
+  MONTHLY_RETAINER
 }
 
 model Document {
@@ -106,14 +133,30 @@ model Invoice {
   project   Project?      @relation(fields: [projectId], references: [id])
 }
 
+model Lead {
+  id       Int     @id @default(autoincrement())
+  name     String
+  email    String
+  phone    String
+  address  String
+  city     String
+  dnd      Boolean
+  website  String
+  timezone String
+  source   String
+}
+
 model Notification {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  type      String
-  message   String
-  read      Boolean  @default(false)
+  id         Int              @id @default(autoincrement())
+  message    String
+  read       Boolean          @default(false)
+  user       User             @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  type       NotificationType
+  entityId   Int?
+  entityType EntityType?
+
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
 }
 
 model Organization {
@@ -130,13 +173,14 @@ model Project {
   id           Int            @id @default(autoincrement())
   name         String
   description  String?
-  ownerId      String?
+  ownerId      Int?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  iconID       Int?
   documents    Document[]
   files        File[]
   invoices     Invoice[]
-  owner        User?           @relation(fields: [ownerId], references: [id], onDelete:SetNull, onUpdate: Cascade)
+  owner        User?          @relation(fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   tasks        Task[]
   timeEntries  TimeEntry[]
   organization Organization[] @relation("OrganizationToProject")
@@ -164,12 +208,12 @@ model Task {
   project        Project?    @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   timeEntries    TimeEntry[]
   tags           Tag[]       @relation("TaskTags")
-  assignees       User[]      @relation("TaskToUser")
+  assignees      User[]      @relation("TaskToUser")
 }
 
 model TimeEntry {
   id          Int      @id @default(autoincrement())
-  userId      String
+  userId      Int
   taskId      Int
   projectId   Int?
   date        DateTime
@@ -192,31 +236,31 @@ model Tag {
 }
 
 model User {
-  id               String         @id @unique @default(uuid())
-  firstName        String
-  lastName         String
-  email            String?        @unique
-  passwordEnabled  Boolean?
-  emailVerified    Boolean?
-  image            String?
-  createdAt        DateTime       @default(now())
-  lastLoginAt      DateTime?
-  username         String?
-  tfaEnabled       Boolean?
-  birthday         DateTime?
-  gender           String?
-  activityLogs     ActivityLog[]
-  comments         Comment[]
-  notifications    Notification[]
-  assignedProjects Project[]
-  timeEntries      TimeEntry[]
-  createdWorkflows Workflow[]     @relation("UserWorkflowCreator")
-  updatedWorks     Workflow[]     @relation("UserWorkflowEditor")
-  assignedClients  Client[]       @relation("ClientToUser")
-  assignedContacts Contact[]      @relation("ContactToUser")
-  assignedDeals    Deal[]         @relation("DealToUser")
-  organizations    Organization[] @relation("OrganizationToUser")
-  assignedTasks    Task[]         @relation("TaskToUser")
+  id                    Int            @id @unique @default(autoincrement())
+  firstName             String
+  lastName              String
+  email                 String?        @unique
+  passwordEnabled       Boolean?
+  emailVerified         Boolean?
+  image                 String?
+  createdAt             DateTime       @default(now())
+  lastLoginAt           DateTime?
+  username              String?
+  tfaEnabled            Boolean?
+  birthday              DateTime?
+  gender                String?
+  activityLogs          ActivityLog[]
+  comments              Comment[]
+  assignedProjects      Project[]
+  timeEntries           TimeEntry[]
+  createdWorkflows      Workflow[]     @relation("UserWorkflowCreator")
+  updatedWorks          Workflow[]     @relation("UserWorkflowEditor")
+  assignedClients       Client[]       @relation("ClientToUser")
+  assignedContacts      Contact[]      @relation("ContactToUser")
+  assignedOpportunities Opportunity[]  @relation("OpportunityToUser")
+  organizations         Organization[] @relation("OrganizationToUser")
+  assignedTasks         Task[]         @relation("TaskToUser")
+  Notification          Notification[]
 }
 
 model Workflow {
@@ -226,8 +270,8 @@ model Workflow {
   updatedAt         DateTime            @updatedAt
   nodes             Json?
   data              Json?
-  createdById       String
-  editedById        String
+  createdById       Int
+  editedById        Int
   creator           User                @relation("UserWorkflowCreator", fields: [createdById], references: [id])
   editor            User                @relation("UserWorkflowEditor", fields: [editedById], references: [id])
   workflowInstances WorkflowExecution[]
@@ -253,4 +297,28 @@ enum TaskStatus {
   DONE
   CANCELED
   BACKLOG
+}
+
+enum NotificationType {
+  TASK_CREATE
+  TASK_MODIFY
+  TASK_DELETE
+  TASK_ASSIGN
+  TASK_UNASSIGN
+  TASK_OVERDUE
+  TASK_DONE
+  TASK_CANCELED
+}
+
+enum EntityType {
+  Task
+  User
+  Comment
+  Project
+  Invoice
+  File
+  Document
+  Opportunity
+  Contact
+  Client
 }

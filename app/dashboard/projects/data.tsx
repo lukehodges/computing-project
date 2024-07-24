@@ -15,7 +15,11 @@ import {
     IconBrandWhatsapp,
     IconBrandZoom,
   } from '@tabler/icons-react'
-  
+  export const logos = [
+    <IconBrandTelegram />,
+    <IconBrandDiscord/>,
+    <IconBrandDocker/>
+  ]
   export const apps = [
     {
       name: 'Telegram',

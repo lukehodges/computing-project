@@ -1,7 +1,7 @@
 
 import { columns } from "./components/columns";
 import { DataTable } from "./components/data-table";
-import prisma from "@/app/db";
+import prisma from "@/lib/db";
 import { CalendarDateRangePicker } from "@/components/custom/date-range-picker";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,13 +11,10 @@ import { POST } from "@/app/api/tasks/route";
 // Simulate a database read for tasks.
 async function getTasks() {
   
-  let p = performance.now()
   let P = await prisma.task.findMany({include: {
     assignees:true
   }
   });
-  let z = performance.now()
-  console.log(z-p)
   
   return P;
 }
