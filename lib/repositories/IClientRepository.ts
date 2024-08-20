@@ -1,8 +1,8 @@
 // src/repositories/IClientRepository.ts
 import { Client } from "../entities/Client";
 import { Contact } from "../entities/Contact";
-import { Document } from "../entities/Document";
-import { Invoice } from "../entities/Invoice";
+// import { Document } from "../entities/Document";
+// import { Invoice } from "../entities/Invoice";
 import { Opportunity } from "../entities/Opportunity";
 import { Tag } from "../entities/Tag";
 import { User } from "../entities/User";
@@ -32,8 +32,8 @@ export interface IClientRepository {
   create(client: Client): Promise<Client>;
   update(client: Client): Promise<Client>;
   delete(id: number): Promise<void>;
-  getDocuments(id: number): Promise<Document[]>;
-  getInvoices(id: number): Promise<Invoice[]>;
+  // getDocuments(id: number): Promise<Document[]>;
+  // getInvoices(id: number): Promise<Invoice[]>;
   getOpportunities(id: number): Promise<Opportunity[]>;
   getTags(id: number): Promise<Tag[]>;
   getContacts(id: number): Promise<Contact[]>;

@@ -1,4 +1,5 @@
 "use client"
+
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -27,7 +28,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { format } from "date-fns"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, ReactNode } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -37,43 +38,44 @@ const formSchema = z.object({
     description: z.string().optional(),
 })
 
-export default function TaskPopup({ children }) {
+interface TaskPopupProps {
+    children: ReactNode
+}
+
+export default function TaskPopup({ children }: TaskPopupProps) {
     const router = useRouter();
     const [formStep, setFormStep] = useState(0)
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            name:"",
-            description:""
+            name: "",
+            description: ""
         },
     })
 
-    const onSubmit = (values) => {
+    const onSubmit = (values: any) => {
         console.log("Form Submitted:", JSON.stringify(values))
         fetch("/api/project/", {
-          headers: {
-            'Content-Type': 'application/json'
-          },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             method: "POST",
             body: JSON.stringify(values)
         }).then(response => {
             console.log("done", response);
             setopen(false)
             router.refresh();
-            // redirect("/dashboard/tasks/task1    ")
-            
-        }
-        )
-
+            // redirect("/dashboard/tasks/task1")
+        })
 
         // Add form submission logic here
     }
 
-    const [open,setopen] = useState(false)
+    const [open, setopen] = useState(false)
     return (
         <Dialog open={open} onOpenChange={setopen}>
             <DialogTrigger asChild>
-                {children}  
+                {children}
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
@@ -82,46 +84,45 @@ export default function TaskPopup({ children }) {
                         Add a new project with the necessary details.
                     </DialogDescription>
                 </DialogHeader>
-                <Form  {...form} >
+                <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                                <FormField
-                                    control={form.control}
-                                    name="name"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Title</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="Project Name" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="description"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Description</FormLabel>
-                                            <FormControl>
-                                                <Textarea placeholder="Project Description" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <DialogFooter>
-                                    <Button variant="outline" type="button" onClick={() =>{
-                                        setopen(false)
-                                        form.reset()
-                                        }}>
-                                        Cancel
-                                    </Button>
-                                    <Button type="submit" >
-                                        Submit
-                                    </Button>
-                                </DialogFooter>
-                            
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Title</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Project Name" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="description"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Description</FormLabel>
+                                    <FormControl>
+                                        <Textarea placeholder="Project Description" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <DialogFooter>
+                            <Button variant="outline" type="button" onClick={() => {
+                                setopen(false)
+                                form.reset()
+                            }}>
+                                Cancel
+                            </Button>
+                            <Button type="submit">
+                                Submit
+                            </Button>
+                        </DialogFooter>
                     </form>
                 </Form>
             </DialogContent>

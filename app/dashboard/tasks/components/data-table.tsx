@@ -29,21 +29,28 @@ import {
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
 import { useRouter } from "next/navigation";
+import { Task } from "@/lib/entities/Tasks";
+import { TaskWithAssignees } from "./columns";
 
-export interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+
+
+export interface DataTableProps<TValue> {
+  columns: ColumnDef<TaskWithAssignees, any>[];
+  data: TaskWithAssignees[];
   editable: boolean;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TValue>({
   columns,
   data,
   editable,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({ id: false });
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({ id: false });
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
@@ -71,7 +78,13 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4 overflow-hidden">
-      <DataTableToolbar table={table} editable={editable} onDelete={() => { console.log("deleted"); }} />
+      <DataTableToolbar
+        table={table}
+        editable={editable}
+        onDelete={() => {
+          console.log("deleted");
+        }}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -99,12 +112,11 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={(event) => {
-                      router.push("/dashboard/tasks/" + row.getValue("id"));
-                    
+                    router.push("/dashboard/tasks/" + row.getValue("id"));
                   }}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} >
+                    <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

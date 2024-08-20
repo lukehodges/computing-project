@@ -18,7 +18,7 @@ import { report } from "process";
 import { TaskUseCases } from "@/lib/usecases/index";
 import prisma from "@/lib/db";
 import { Timeline } from "@/components/custom/timeline";
-
+export const dynamic = 'force-dynamic'
 async function getTimeline() {
   const items: TimelineItemProps[] = [
     {

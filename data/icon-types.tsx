@@ -59,9 +59,9 @@ const getIconComponent = (taskStatus: string) => {
 };
 
 // Usage in a React component
-export const NotificationIcon = ({ status }) => {
+export const NotificationIcon = ({ className,status }:{className:string,status:string}) => {
     const IconComponent = getIconComponent(status);
-    return IconComponent ? <IconComponent /> : null;
+    return IconComponent ? <IconComponent className={className}/> : null;
 };
 export const getNotificationText = (taskStatus: string) => {
     const task = notificationIconsList.find(item => item.value === taskStatus);

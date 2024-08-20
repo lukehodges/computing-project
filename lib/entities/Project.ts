@@ -1,4 +1,5 @@
 export class Project {
+    tags: any;
     constructor(
         public id:number,
         public name:string,

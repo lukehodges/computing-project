@@ -1,44 +1,13 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
-
-import { labels, priorities, statuses } from "../data/data";
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import { priorities, statuses } from "../data/data";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import type { Task, User } from "@prisma/client";
-import prisma from "@/app/db";
-import { redirect, RedirectType, useRouter } from "next/navigation";
 import UserBadge from "../../../../components/custom/user-badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import React from "react";
-import {
-  Calculator,
-  CreditCard,
-  Settings,
-  Smile,
-  SquarePlusIcon,
-  User,
-} from "lucide-react";
-import AssigneeAdder from "./assignee-plus-icon";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-} from "@/components/ui/command";
-import { Calendar } from "@/components/ui/calendar";
+import { SquarePlusIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,13 +20,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-// let router = useRouter()
-// function redirect() {
-//   router.push("/admin")
-// }
-export const columns: ColumnDef<Task>[] = [
-  {
+import { User } from "@/lib/entities/User";
+import { mapPrismaUserToEntity } from "@/prisma/maps/UserMapper";
+import { Task } from "@/lib/entities/Tasks";
+export interface TaskWithAssignees extends Task {
+  assignees: User[];
+}
+const columnHelper = createColumnHelper<TaskWithAssignees>();
+
+export const columns: ColumnDef<TaskWithAssignees, any>[]= [
+  columnHelper.display({
     id: "select",
     header: ({ table }) => (
       <Checkbox
@@ -81,41 +53,37 @@ export const columns: ColumnDef<Task>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-  },
-  {
-    accessorKey: "id",
+  }),
+  columnHelper.accessor("id", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Task" />
     ),
     cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
     enableSorting: false,
     enableHiding: true,
-  },
-  {
-    accessorKey: "title",
+  }),
+  columnHelper.accessor("title", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
-    cell: ({ row }) => {
-      // const label = labels.find((label) => label.value === row.original.label)
-
-      return (
-        <div className="flex space-x-2">
-          {/* {label && <Badge variant="outline">{label.label}</Badge>} */}
-          <span className="max-w-[450px] truncate font-medium">
-            {row.getValue("title")}
-          </span>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "assignees",
+    cell: ({ row }) => (
+      <div className="flex space-x-2">
+        <span className="max-w-[450px] truncate font-medium">
+          {row.getValue("title")}
+        </span>
+      </div>
+    ),
+  }),
+  columnHelper.accessor("assignees", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Assigned To" />
     ),
     cell: ({ row }) => {
-      let users = row.getValue("assignees");
+      let users: User[] = [];
+      const assignees = row.getValue("assignees");
+      if (Array.isArray(assignees)) {
+        users = assignees.map((assignee) => mapPrismaUserToEntity(assignee));
+      }
       const [isHovered, setIsHovered] = React.useState(false);
 
       return (
@@ -135,7 +103,7 @@ export const columns: ColumnDef<Task>[] = [
               />
             ))}
           <DropdownMenu>
-            <DropdownMenuTrigger className="p-0 m-0 b-0"asChild>
+            <DropdownMenuTrigger className="p-0 m-0 b-0" asChild>
               {isHovered && (
                 <Button
                   variant="ghost"
@@ -189,25 +157,20 @@ export const columns: ColumnDef<Task>[] = [
         </div>
       );
     },
-  },
-
-  {
-    accessorKey: "description",
+  }),
+  columnHelper.accessor("description", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Description" />
     ),
-    cell: ({ row }) => {
-      return (
-        <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("description")}
-          </span>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "status",
+    cell: ({ row }) => (
+      <div className="flex space-x-2">
+        <span className="max-w-[500px] truncate font-medium">
+          {row.getValue("description")}
+        </span>
+      </div>
+    ),
+  }),
+  columnHelper.accessor("status", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
@@ -232,9 +195,8 @@ export const columns: ColumnDef<Task>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
-  },
-  {
-    accessorKey: "priority",
+  }),
+  columnHelper.accessor("priority", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Priority" />
     ),
@@ -253,36 +215,15 @@ export const columns: ColumnDef<Task>[] = [
             <priority.icon className="mr-2 h-4 w-4 text-muted-foreground" />
           )}
           <span>{priority.label}</span>
-          {/* <Select>
-            <SelectTrigger className="">
-              <SelectValue placeholder="Theme" />
-            </SelectTrigger>
-            <SelectContent>
-              {
-                priorities.map((priority) => (
-                  <SelectItem
-                    key={priority.value}
-                    value={priority.value.toString()}
-                    className="flex"
-                  >
-                    {priority.icon && (
-                      <priority.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                    )}
-                    {priority.label}
-                  </SelectItem>
-                ))
-              }
-            </SelectContent>
-          </Select> */}
         </div>
       );
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
-  },
-  {
+  }),
+  columnHelper.display({
     id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,
-  },
+  }),
 ];

@@ -1,27 +1,23 @@
 
-import { columns } from "./components/columns";
+import { columns, TaskWithAssignees } from "./components/columns";
 import { DataTable } from "./components/data-table";
-import prisma from "@/lib/db";
 import { CalendarDateRangePicker } from "@/components/custom/date-range-picker";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import  TaskPopup from "./components/new-task-popup";
-import { POST } from "@/app/api/tasks/route";
+import { TaskUseCases } from "@/lib/usecases";
 
 // Simulate a database read for tasks.
-async function getTasks() {
-  
-  let P = await prisma.task.findMany({include: {
-    assignees:true
-  }
-  });
-  
-  return P;
-}
-
+export const dynamic = 'force-dynamic'
 export default async function TaskPage() {
-  const tasks = await getTasks();
-  let users = await prisma.user.findMany();
+  let l = await TaskUseCases.findTasksByInformation({});
+  l = l || [];
+  let tasks: TaskWithAssignees[] = [];
+  for (let i = 0; i < l.length; i++) {
+    tasks[i] = {
+      ...l[i],
+      assignees: await TaskUseCases.getAssignees(l[i].id),
+    };
+  }
   return (
     <div>
       <div className="flex items-center justify-between space-y-1 pb-2 pt-0 ">
@@ -32,7 +28,7 @@ export default async function TaskPage() {
           <Button>Add Task</Button></TaskPopup>
         </div>
       </div>
-          <DataTable data={tasks} columns={columns} editable={true}/>
+          <DataTable data={tasks.map((task:TaskWithAssignees) => JSON.parse(JSON.stringify(task)))} columns={columns} editable={true}/>
     </div>
   );
 }

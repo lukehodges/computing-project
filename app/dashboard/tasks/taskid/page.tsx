@@ -2,7 +2,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 // import { faker } from "@faker-js/faker";
 import { SquareArrowOutUpRight, SlidersHorizontalIcon, Calendar, PhoneCall, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Timeline } from "../../projects/projectid/timeline";
+import { Timeline } from "@/components/custom/timeline";
 import UserBadge from "../../../../components/custom/user-badge";
 import { Separator } from "@/components/ui/separator";
 import { TimelineItemProps } from "../../../../components/custom/TimelineItem";
@@ -147,9 +147,9 @@ export default async function Page() {
               Team Leads
               <div className="text-xs text-muted-foreground">
                 <div className="flex">
-                  <UserBadge />
-                  <UserBadge />
-                  <UserBadge />
+                  <UserBadge url={null} fallback={""} name={""}/>
+                  <UserBadge url={null} fallback={""} name={""}/>
+                  <UserBadge url={null} fallback={""} name={""}/>
                 </div>
 
                 {/* +20.1% from last month */}
@@ -159,13 +159,13 @@ export default async function Page() {
               Entire Team
               <p className="text-xs text-muted-foreground">
                 <div className="flex">
-                  <UserBadge />
-                  <UserBadge />
-                  <UserBadge />
+                  <UserBadge url={null} fallback={""} name={""}/>
+                  <UserBadge url={null} fallback={""} name={""}/>
+                  <UserBadge url={null} fallback={""} name={""}/>
                 </div>
                 <div className="flex">
-                  <UserBadge />
-                  <UserBadge />
+                  <UserBadge url={null} fallback={""} name={""}/>
+                  <UserBadge url={null} fallback={""} name={""}/>
                 </div>
 
                 {/* +20.1% from last month */}

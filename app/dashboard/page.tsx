@@ -13,71 +13,17 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getNotificationText, NotificationIcon } from "@/data/icon-types";
-import { Notification } from "@/lib/entities/Notifications";
+import { categorizeNotifications, Notification } from "@/lib/entities/Notifications";
 import { NotificationUseCases, TaskUseCases } from "@/lib/usecases";
-import { mapEntityToPrismaNotification } from "@/prisma/maps/NotificationMapper";
 import { IconNotification } from "@tabler/icons-react";
 import { SquareArrowOutUpRight } from "lucide-react";
-import prisma from "../../lib/db";
-import { columns } from "./tasks/components/columns";
+import { columns, TaskWithAssignees } from "./tasks/components/columns";
 import { DataTable } from "./tasks/components/data-table";
 import { KPIOverview } from "./components/kpi-overview";
 import { RecentSales } from "./components/recent-sales";
 import { Overview } from "./components/overview";
-async function getTask() {
-  return await prisma.task.findMany({ include: { assignees: true } });
-}
-function filterNotificationsHour(notifications: Notification[]) {
-  let currentTime = new Date();
-  let lasthour = new Date();
-  lasthour.setHours(lasthour.getHours() - 1);
-  return notifications.filter(
-    (notification) => notification.createdAt >= lasthour
-  );
-}
-function filterNotificationsToday(notifications: Notification[]) {
-  let currentTime = new Date();
-  let startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
-  return notifications.filter(
-    (notification) => notification.createdAt >= startOfToday
-  );
-}
-function filterNotificationsYesterday(notifications: Notification[]) {
-  let startOfYesterday = new Date();
-  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
-  startOfYesterday.setHours(0, 0, 0, 0);
-  return notifications.filter(
-    (notification) => notification.createdAt >= startOfYesterday
-  );
-}
-function filterNotificationsWeek(notifications: Notification[]) {
-  let startOfWeek = new Date();
-  startOfWeek.setDate(startOfWeek.getDate() - 7);
-  startOfWeek.setHours(0, 0, 0, 0);
-  return notifications.filter(
-    (notification) => notification.createdAt >= startOfWeek
-  );
-}
 
-function filterNotificationsMonth(notifications: Notification[]) {
-  let startofMonth = new Date();
-  startofMonth.setDate(0);
-  startofMonth.setHours(0, 0, 0, 0);
-  return notifications.filter(
-    (notification) => notification.createdAt >= startofMonth
-  );
-}
-function notificatonDifference(...list: Notification[][]): Notification[][] {
-  let results: Notification[][] = [list[0]];
-
-  for (let i = 1; i < list.length - 1; i++) {
-    results.push(
-      list[i].filter((notification) => !list[i - 1].includes(notification))
-    );
-  }
-  return results;
-}
+export const dynamic = "force-dynamic";
 
 export default async function Dashboard() {
   // const { userId } = auth();
@@ -89,21 +35,25 @@ export default async function Dashboard() {
   //     read: false,
   //   },
   // });
-  let tasks = await getTask()
-  let notifications = (await NotificationUseCases.listNotifications()).filter(notification => notification.read === false);
-  let p = notificatonDifference(
-    filterNotificationsHour(notifications),
-    filterNotificationsToday(notifications),
-    filterNotificationsYesterday(notifications),
-    filterNotificationsWeek(notifications),
-    filterNotificationsMonth(notifications),
-    filterNotificationsMonth(notifications)
-  );
-  let [hour, today, yesterday, week, month] = p;
-  console.log(hour);
+  let l = await TaskUseCases.findTasksByInformation({});
+  l = l || [];
+  let tasks: TaskWithAssignees[] = [];
+  for (let i = 0; i < l.length; i++) {
+    tasks[i] = {
+      ...l[i],
+      assignees: await TaskUseCases.getAssignees(l[i].id),
+    };
+  }
+  let notifications = (await NotificationUseCases.listNotifications()).filter(
+    (notification) => notification.read === false
+  )
+  notifications = notifications.map(notification =>JSON.parse(JSON.stringify(notification)));
+  let p = categorizeNotifications(notifications);
+  let {lastHour, today, yesterday, thisWeek, thisMonth, thisYear } = p;
   let outstandign = tasks.filter((task) => !(task.status == "DONE")).length;
   let overdue = tasks.filter(
-    (task) => task.status == "BACKLOG" || task.dueDate < new Date()
+    (task) =>
+      task.status == "BACKLOG" || (task.dueDate && task.dueDate < new Date())
   ).length;
   return (
     <div>
@@ -365,9 +315,7 @@ export default async function Dashboard() {
                   <CardTitle className="text-sm font-medium">
                     Notifications
                   </CardTitle>
-                  <NotificationReadButton
-                    data={notifications.map(mapEntityToPrismaNotification)}
-                  />
+                  <NotificationReadButton data={notifications} />
                   <IconNotification
                     size={16}
                     strokeWidth={2}
@@ -383,7 +331,7 @@ export default async function Dashboard() {
                           Today
                         </div>
                         <div className="grid gap-4">
-                          {hour?.map((notification) => (
+                          {lastHour?.map((notification:Notification) => (
                             <div
                               className="flex items-start gap-3"
                               key={notification.id}
@@ -391,7 +339,7 @@ export default async function Dashboard() {
                               <div className="flex-shrink-0">
                                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground  ">
                                   <NotificationIcon
-                                    className="h-5 w-5"
+                                    className="w-4 h-4"
                                     status={notification.type.toString()}
                                   />
                                 </div>
@@ -404,9 +352,13 @@ export default async function Dashboard() {
                                     )}
                                   </h4>
                                   <p className="text-xs text-muted-foreground">
-                                    {`${new Date(
-                                      new Date() - notification.createdAt
-                                    ).getMinutes()} minutes ago`}
+                                    {`${Math.floor(
+                                      (new Date().getTime() -
+                                        new Date(
+                                          notification.createdAt
+                                        ).getTime()) /
+                                        60000
+                                    )} minutes ago`}
                                   </p>
                                 </div>
                                 <p className="text-sm text-muted-foreground">
@@ -438,9 +390,13 @@ export default async function Dashboard() {
                                       )}
                                     </h4>
                                     <p className="text-xs text-muted-foreground">
-                                      {`${new Date(
-                                        new Date() - notification.createdAt
-                                      ).getHours()} hours ago`}
+                                      {`${Math.floor(
+                                        (new Date().getTime() -
+                                          new Date(
+                                            notification.createdAt
+                                          ).getTime()) /
+                                          3600000
+                                      )} hours ago`}
                                     </p>
                                   </div>
                                   <p className="text-sm text-muted-foreground">
@@ -458,10 +414,15 @@ export default async function Dashboard() {
                         </div>
                         <div className="grid gap-4">
                           {yesterday.map((notification) => {
-                            let hours = new Date(
-                              new Date() - notification.createdAt
-                            )
-                            hours = hours.getHours() + (hours.getDate()-1)*24
+                            let diffInMilliseconds =
+                              new Date().getTime() -
+                              new Date(notification.createdAt).getTime();
+
+                            // Convert milliseconds to total hours
+                            let hours = Math.floor(
+                              diffInMilliseconds / 3600000
+                            ); // 3600000 ms in an hour
+
                             return (
                               <div
                                 className="flex items-start gap-3"
@@ -599,11 +560,7 @@ export default async function Dashboard() {
                 />
               </CardHeader>
               <CardContent>
-                <DataTable
-                  data={tasks}
-                  columns={columns}
-                  editable={true}
-                />
+                <DataTable data={tasks.map((task:TaskWithAssignees) => JSON.parse(JSON.stringify(task)))} columns={columns} editable={true} />
               </CardContent>
             </Card>
           </div>

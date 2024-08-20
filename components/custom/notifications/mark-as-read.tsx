@@ -3,9 +3,10 @@ import React from "react";
 
 import { Button } from "@/components/custom/button";
 import { useRouter } from "next/navigation";
-async function markNotificationAsRead(data: any[]) {
+import { Notification } from "@/lib/entities/Notifications";
+async function markNotificationAsRead(data: Notification[]) {
   const deletePromises = data.map(
-    async (notification: { id: any; }) =>{
+    async (notification: Notification) =>{
       notification.read = true
       await fetch(`/api/notification/${notification.id}`, {
         method: "POST",
@@ -21,7 +22,7 @@ async function markNotificationAsRead(data: any[]) {
   // Handle successful deletion, maybe refresh data or call a callback
   console.log("Deleted successfully");
 }
-export default function NotificationReadButton({data}): React.JSX.Element {
+export default function NotificationReadButton({data}:{data:Notification[]}): React.JSX.Element {
   const router = useRouter();
   return (
     <Button variant="ghost" size="sm" onClick={async ()=>{

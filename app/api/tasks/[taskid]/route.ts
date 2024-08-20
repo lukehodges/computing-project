@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { EntityType, NotificationType } from "@prisma/client";
+import { NotificationUseCases } from "@/lib/usecases";
+import { EntityType, Notification, NotificationType } from "@/lib/entities/Notifications";
+import { faker } from "@faker-js/faker";
 
 export async function DELETE(req: NextRequest, context: any) {
   const { params } = context;
@@ -19,22 +21,32 @@ export async function DELETE(req: NextRequest, context: any) {
     await prisma.task.delete({
       where: { id: taskId },
     });
-    await prisma.notification.create({
-      data: {
-        message: "This Task Was Deleted",
-        read: false,
-        type: NotificationType.TASK_DELETE,
-        entityId: taskId,
-        entityType: EntityType.Task,
-        user:{connect:{id:2}}
+    let x = await prisma.notification.count()
+    let p = await prisma.user.findFirst({})
+    if (!p) {
+      return NextResponse.json(
+        { message: "Task deleted successfully" },
+        { status: 200 }
+      );
+    }
+    let notification = new Notification(
+      x+3,
+      "Task Deleted",
+      false,
+      p.id,
+      NotificationType.TASK_DELETE,
+      Number(id),
+      EntityType.Task,
+      new Date()
 
-      },
-    });
+    )
+    await NotificationUseCases.createNotification(notification)
     return NextResponse.json(
       { message: "Task deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
+    console.log(error)
     return NextResponse.json(
       { error: "Failed to delete task" },
       { status: 500 }

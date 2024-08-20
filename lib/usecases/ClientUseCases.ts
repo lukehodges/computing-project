@@ -1,7 +1,8 @@
 // src/use-cases/ClientUseCases.ts
 import { Client } from '../entities/Client';
-import { Document } from '../entities/Document';
-import { Invoice } from '../entities/Invoice';
+import { Contact } from '../entities/Contact';
+// import { Document } from '../entities/Document';
+// import { Invoice } from '../entities/Invoice';
 import { Opportunity } from '../entities/Opportunity';
 import { Tag } from '../entities/Tag';
 import { User } from '../entities/User';
@@ -37,13 +38,13 @@ export class ClientUseCases {
     return this.clientRepository.findAll();
   }
 
-  async getDocuments(id: number): Promise<Document[]> {
-    return this.clientRepository.getDocuments(id);
-  }
+  // async getDocuments(id: number): Promise<Document[]> {
+  //   return this.clientRepository.getDocuments(id);
+  // }
 
-  async getInvoices(id: number): Promise<Invoice[]> {
-    return this.clientRepository.getInvoices(id);
-  }
+  // async getInvoices(id: number): Promise<Invoice[]> {
+  //   return this.clientRepository.getInvoices(id);
+  // }
 
   async getOpportunities(id: number): Promise<Opportunity[]> {
     return this.clientRepository.getOpportunities(id);
@@ -53,7 +54,7 @@ export class ClientUseCases {
     return this.clientRepository.getTags(id);
   }
 
-  async getContacts(id: number): Promise<User[]> {
+  async getContacts(id: number): Promise<Contact[]> {
     return this.clientRepository.getContacts(id);
   }
 

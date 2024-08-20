@@ -1,4 +1,5 @@
 import { Contact } from "../entities/Contact";
+import { IContactRepository } from "../repositories/IContactRepository";
 
 export class ContactUseCases {
     constructor (private contactRepository: IContactRepository) {}

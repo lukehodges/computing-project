@@ -40,21 +40,20 @@ model Comment {
 }
 
 model Contact {
-  id         Int    @id @default(autoincrement())
-  client     Client? @relation(fields: [clientId], references: [id])
-  assignedTo User[] @relation("ContactToUser")
-  clientId   Int?
-  firstName  String
-  lastName   String
-  email      String   
-  phoneNumber  String
-  address    String
-  city       String
-  country    String
-  jobTitle   String
-  company    String
-  notes      String
-  
+  id          Int     @id @default(autoincrement())
+  client      Client? @relation(fields: [clientId], references: [id])
+  assignedTo  User[]  @relation("ContactToUser")
+  clientId    Int?
+  firstName   String
+  lastName    String
+  email       String
+  phoneNumber String
+  address     String
+  city        String
+  country     String
+  jobTitle    String
+  company     String
+  notes       String
 }
 
 model Pipeline {

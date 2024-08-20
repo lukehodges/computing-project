@@ -78,7 +78,7 @@ export const priorities_table = [
   {
     label: "Medium",
     value: 2,
-    icon: ArrowRightIcon,
+    icon: ArrowRightIcon
   },
   {
     label: "High",

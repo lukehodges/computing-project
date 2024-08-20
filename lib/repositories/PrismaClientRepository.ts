@@ -3,8 +3,8 @@ import { mapEntityToPrismaClient, mapPrismaClientToEntity } from "@/prisma/maps/
 import prisma from "../db";
 
 import { Client } from "../entities/Client";
-import { Document } from "../entities/Document";
-import { Invoice } from "../entities/Invoice";
+// import { Document } from "../entities/Document";
+// import { Invoice } from "../entities/Invoice";
 import { Opportunity } from "../entities/Opportunity";
 import { Tag } from "../entities/Tag";
 import { User } from "../entities/User";
@@ -65,31 +65,31 @@ export class PrismaClientRepository implements IClientRepository {
     });
   }
 
-  async getDocuments(id: number): Promise<Document[]> {
-    const prismaClient = await prisma.client.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        documents: true,
-      },
-    });
-    if (!prismaClient) return [];
-    return prismaClient.documents.map(document => ({...document }));
-  }
+  // async getDocuments(id: number): Promise<Document[]> {
+  //   const prismaClient = await prisma.client.findUnique({
+  //     where: {
+  //       id,
+  //     },
+  //     include: {
+  //       documents: true,
+  //     },
+  //   });
+  //   if (!prismaClient) return [];
+  //   return prismaClient.documents.map(document => ({...document }));
+  // }
 
-  async getInvoices(id: number): Promise<Invoice[]> {
-    const prismaClient = await prisma.client.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        invoices: true,
-      },
-    });
-    if (!prismaClient) return [];
-    return prismaClient.invoices.map(invoice => ({...invoice }));
-  }
+  // async getInvoices(id: number): Promise<Invoice[]> {
+  //   const prismaClient = await prisma.client.findUnique({
+  //     where: {
+  //       id,
+  //     },
+  //     include: {
+  //       invoices: true,
+  //     },
+  //   });
+  //   if (!prismaClient) return [];
+  //   return prismaClient.invoices.map(invoice => ({...invoice }));
+  // }
 
   async getOpportunities(id: number): Promise<Opportunity[]> {
     const prismaClient = await prisma.client.findUnique({

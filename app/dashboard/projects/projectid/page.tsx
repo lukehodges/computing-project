@@ -1,38 +1,29 @@
-import prisma from "@/lib/db";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { DataTable } from "../../tasks/components/data-table";
-import { columns } from "../../tasks/components/columns";
+import { columns, TaskWithAssignees } from "../../tasks/components/columns";
 import { Separator } from "@/components/ui/separator";
-import { ProjectStats1, ProjectStats2, ProjectStats3 } from "./project-stats";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import UserBadge from "../../../../components/custom/user-badge";
-import { Timeline } from "./timeline";
-import { TimelineItem, TimelineItemProps } from "../../../../components/custom/TimelineItem";
+import { TimelineItemProps } from "../../../../components/custom/TimelineItem";
 import {
   Calendar,
   PhoneCall,
-  SlidersHorizontal,
   SlidersHorizontalIcon,
-  SquareArrowDownRightIcon,
   SquareArrowOutUpRight,
-  SquareArrowUpRight,
-  SquareCheckBig,
   Star,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import dynamic from "next/dynamic";
-const Editor = dynamic(() => import("../../editor/editor"), { ssr: false });
-async function getTasks() {
-  return await prisma.task.findMany({});
-}
+import {default as dynamo} from "next/dynamic";
+import { Timeline } from "@/components/custom/timeline";
+import { TaskUseCases } from "@/lib/usecases";
+const Editor = dynamo(() => import("../../editor/editor"), { ssr: false });
+export const dynamic = 'force-dynamic'
 async function getTimeline() {
   const items: TimelineItemProps[] = [
     {
@@ -99,7 +90,15 @@ async function getTimeline() {
   return items;
 }
 export default async function ProjectPage() {
-  let tasks = await getTasks();
+  let l = await TaskUseCases.findTasksByInformation({});
+  l = l || [];
+  let tasks: TaskWithAssignees[] = [];
+  for (let i = 0; i < l.length; i++) {
+    tasks[i] = {
+      ...l[i],
+      assignees: await TaskUseCases.getAssignees(l[i].id),
+    };
+  }
   let updates = await getTimeline();
   return (
     <div>
@@ -169,7 +168,7 @@ export default async function ProjectPage() {
                   <div className="flex">
                     <UserBadge url="https://github.com/shadcn.png" fallback="CN" name={"dababy"}/>
                     <UserBadge url="https://github.com/lukehodges.png" fallback="CN" name={"dababy"}/>
-                    <UserBadge />
+                    <UserBadge url={null} fallback={""} name={""}/>
                   </div>
 
                   {/* +20.1% from last month */}
@@ -179,13 +178,13 @@ export default async function ProjectPage() {
                 Entire Team
                 <p className="text-xs text-muted-foreground">
                   <div className="flex">
-                    <UserBadge />
-                    <UserBadge />
-                    <UserBadge />
+                    <UserBadge url={null} fallback={""} name={""}/>
+                    <UserBadge url={null} fallback={""} name={""}/>
+                    <UserBadge url={null} fallback={""} name={""}/>
                   </div>
                   <div className="flex">
-                    <UserBadge />
-                    <UserBadge />
+                    <UserBadge url={null} fallback={""} name={""}/>
+                    <UserBadge url={null} fallback={""} name={""}/>
                   </div>
 
                   {/* +20.1% from last month */}
@@ -363,7 +362,7 @@ export default async function ProjectPage() {
             />
           </CardHeader>
           <CardContent>
-            <DataTable data={tasks} columns={columns} editable={true} />
+            <DataTable data={tasks.map((task:TaskWithAssignees) => JSON.parse(JSON.stringify(task)))} columns={columns} editable={true} />
           </CardContent>
         </Card>
       </div>

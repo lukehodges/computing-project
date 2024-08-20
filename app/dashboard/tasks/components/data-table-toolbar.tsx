@@ -9,43 +9,52 @@ import { priorities_table, statuses } from "../data/data"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 import { DataTableViewOptions } from "./data-table-view-options"
 import TaskPopup from "./new-task-popup"
+import { mapPrismaTaskToEntity } from "@/prisma/maps/TaskMapper"
+import { Task } from "@/lib/entities/Tasks"
 
-interface DataTableToolbarProps<TData> {
-  table: Table<TData>,
-  editable: boolean,
+interface DataTableToolbarProps<TData extends Task> {
+  table: Table<TData>;
+  editable: boolean;
   onDelete: (rows: Row<TData>[]) => void;
 }
 
-async function deleteTasks<TData>(data: Table<TData>, router: ReturnType<typeof useRouter>) {
-  const ids = data.getSelectedRowModel().flatRows.map(row => row.original.id);
+// Update the deleteTasks function to use the Task type
+async function deleteTasks<TData extends Task>(
+  data: Table<TData>,
+  router: ReturnType<typeof useRouter>
+) {
+  const ids = data.getSelectedRowModel().flatRows.map((row) => mapPrismaTaskToEntity(row.original).id);
 
-  const deletePromises = ids.map(async id =>
+  const deletePromises = ids.map(async (id) =>
     await fetch(`/api/tasks/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
     })
   );
 
   await Promise.all(deletePromises);
 
   // Handle successful deletion, maybe refresh data or call a callback
-  data.toggleAllPageRowsSelected(false)
+  data.toggleAllPageRowsSelected(false);
   router.refresh();
 }
 
-export function DataTableToolbar<TData>({
+// Update the DataTableToolbar function to use the Task type
+export function DataTableToolbar<TData extends Task>({
   table,
   editable,
-  onDelete
+  onDelete,
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0
-  const selected = table.getSelectedRowModel().flatRows
-  const isSelected = selected.length > 0
+  const isFiltered = table.getState().columnFilters.length > 0;
+  const selected = table.getSelectedRowModel().flatRows;
+  const isSelected = selected.length > 0;
   const router = useRouter(); // Move useRouter here
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
-        <TaskPopup><Button className="h-8 hover:bg-slate-600">Add New</Button></TaskPopup>
+        <TaskPopup>
+          <Button className="h-8 hover:bg-slate-600">Add New</Button>
+        </TaskPopup>
 
         {editable && isSelected && (
           <Button
@@ -80,10 +89,10 @@ export function DataTableToolbar<TData>({
           />
         )}
 
-        {table.getColumn("assignee") && (
+        {table.getColumn("assignees") && (
           <DataTableFacetedFilter
-            column={table.getColumn("assignee")}
-            title="Assignee"
+            column={table.getColumn("assignees")}
+            title="Assignees"
             options={priorities_table}
           />
         )}
@@ -100,5 +109,5 @@ export function DataTableToolbar<TData>({
       </div>
       <DataTableViewOptions table={table} />
     </div>
-  )
+  );
 }

@@ -10,7 +10,8 @@ export async function POST(res:NextRequest) {
         body.description,
         null,
         new Date(),
-        new Date()
+        new Date(),
+        3
     )
     console.log(project)
     ProjectUseCases.createProject(project);

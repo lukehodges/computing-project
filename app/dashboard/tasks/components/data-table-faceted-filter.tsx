@@ -20,13 +20,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import { IconProps } from "@tabler/icons-react"
 
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
   title?: string
   options: {
     label: string
-    value: string
+    value: any
     icon?: React.ComponentType<{ className?: string }>
   }[]
 }

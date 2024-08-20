@@ -2,7 +2,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -31,7 +31,6 @@ import { Calendar } from "@/components/ui/calendar"
 import { CalendarIcon } from "@radix-ui/react-icons"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import prisma from "@/app/db"
 import { redirect, useRouter } from "next/navigation"
 
 // Create a schema using zod
@@ -40,12 +39,14 @@ const formSchema = z.object({
     description: z.string().optional(),
     status: z.enum(["TODO", "IN_PROGRESS", "DONE"], { required_error: "Please select a status." }),
     priority: z.number().int().min(1, { message: "Priority must be at least 1." }),
-    dueDate: z.date().optional(),
-    startDate: z.date().optional(),
-    estimatedHours: z.number().positive().optional(),
+    dueDate: z.date(),
+    startDate: z.date(),
+    estimatedHours: z.number().positive(),
 })
-
-export default function TaskPopup({ children }) {
+type TaskPopupProps =  {
+    children:React.ReactNode
+}
+export default function TaskPopup({ children }:TaskPopupProps) {
     const router = useRouter();
     const [formStep, setFormStep] = useState(0)
     const form = useForm({
@@ -55,13 +56,13 @@ export default function TaskPopup({ children }) {
             description: "",
             status: "TODO",
             priority: 1,
-            dueDate: null,
-            startDate: null,
-            estimatedHours: null,
+            dueDate: new Date(),
+            startDate: new Date(),
+            estimatedHours: 0,
         },
     })
 
-    const onSubmit = (values) => {
+    const onSubmit = (values: any) => {
         console.log("Form Submitted:", JSON.stringify(values))
         fetch("/api/tasks/", {
           headers: {
