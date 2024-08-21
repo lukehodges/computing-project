@@ -235,7 +235,7 @@ model TimeEntry {
   task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
-
+// now its time to add dnd
 model Tag {
   id       Int       @id @default(autoincrement())
   name     String
