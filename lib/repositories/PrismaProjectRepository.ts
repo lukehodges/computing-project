@@ -9,8 +9,6 @@ import { mapPrismaTagToEntity } from "@/prisma/maps/TagMapper";
 
 export class PrismaProjectRepository implements IProjectRepository {
     async getTags(id: number): Promise<Tag[]> {
-        console.log(id)
-        console.log("beads")
         const prismaProject = await prisma.project.findUnique({
             where: {
                 id,

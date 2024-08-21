@@ -1,5 +1,3 @@
-// prisma/seed.ts
-
 import { PrismaClient, TaskStatus } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 
@@ -15,6 +13,15 @@ async function main() {
   await prisma.tag.deleteMany({})
   await prisma.notification.deleteMany({})
   await prisma.organization.deleteMany({})
+  await prisma.client.deleteMany({})
+
+  // Image URLs for user profile images
+  const profileImages = [
+    'https://example.com/image1.jpg',
+    'https://example.com/image2.jpg',
+    'https://example.com/image3.jpg'
+  ];
+
   // Seed Users
   const users = [];
   for (let i = 0; i < 10; i++) {
@@ -26,6 +33,7 @@ async function main() {
         username: faker.internet.userName(),
         birthday: faker.date.past(),
         gender: faker.name.gender(),
+        image: faker.image.avatarGitHub()  // Assign a random profile image
       },
     });
     users.push(user);
@@ -36,9 +44,9 @@ async function main() {
   const organization = await prisma.organization.create({
     data: {
       id: faker.datatype.uuid(),
-      identifier: orgname.slice(0,4),
+      identifier: orgname.slice(0, 4),
       name: orgname,
-      legalName: orgname+ " Inc.",
+      legalName: orgname + " Inc.",
       image: faker.image.business(),
       users: {
         connect: users.map(user => ({ id: user.id })),
@@ -53,11 +61,22 @@ async function main() {
       data: {
         name: faker.company.name(),
         assigned: {
-          connect: faker.helpers.arrayElements(users,faker.number.int({min:0,max:4})).map(user => ({ id: user.id })),
+          connect: faker.helpers.arrayElements(users, faker.number.int({ min: 0, max: 4 })).map(user => ({ id: user.id })),
         },
       },
     });
     clients.push(client);
+  }
+
+  // Seed Tags
+  const tags = [];
+  for (let i = 0; i < 10; i++) {
+    const tag = await prisma.tag.create({
+      data: {
+        name: faker.hacker.noun(),
+      },
+    });
+    tags.push(tag);
   }
 
   // Seed Projects
@@ -73,6 +92,9 @@ async function main() {
         organization: {
           connect: { id: organization.id },
         },
+        tags: {
+          connect: faker.helpers.arrayElements(tags, faker.number.int({ min: 0, max: 3 })).map(tag => ({ id: tag.id }))
+        }
       },
     });
     projects.push(project);
@@ -89,10 +111,13 @@ async function main() {
           connect: { id: projects[Math.floor(Math.random() * projects.length)].id },
         },
         assignees: {
-          connect: faker.helpers.arrayElements(users,faker.number.int({min:0,max:4})).map(user => ({ id: user.id })),
+          connect: faker.helpers.arrayElements(users, faker.number.int({ min: 0, max: 4 })).map(user => ({ id: user.id })),
         },
-        status: faker.helpers.arrayElement([TaskStatus.TODO,TaskStatus.IN_PROGRESS, TaskStatus.DONE, TaskStatus.CANCELED, TaskStatus.BACKLOG]),
-        priority:faker.number.int({min:0,max:5})
+        status: faker.helpers.arrayElement([TaskStatus.TODO, TaskStatus.IN_PROGRESS, TaskStatus.DONE, TaskStatus.CANCELED, TaskStatus.BACKLOG]),
+        priority: faker.number.int({ min: 0, max: 5 }),
+        tags: {
+          connect: faker.helpers.arrayElements(tags, faker.number.int({ min: 0, max: 3 })).map(tag => ({ id: tag.id }))
+        }
       },
     });
     tasks.push(task);
