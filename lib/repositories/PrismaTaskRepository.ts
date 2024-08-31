@@ -8,9 +8,33 @@ import { User } from "../entities/User";
 import { mapPrismaUserToEntity } from "@/prisma/maps/UserMapper";
 import { mapPrismaTagToEntity } from "@/prisma/maps/TagMapper";
 import { Tag } from "../entities/Tag";
+import { UserUseCases } from "../usecases";
 
 
 export class PrismaTaskRepository implements ITaskRepository {
+  async removeAssignee(id: number, assignee: number): Promise<Task> {
+    if ((await this.getAssignees(id)).filter(task => task.id === assignee).length == 0) {
+      throw new Error("Task does not have this assignee");
+    }
+    const updatedTask = await prisma.task.update({
+      where: { id },
+      data: { assignees: { disconnect: { id: assignee } } },
+    });
+    return mapPrismaTaskToEntity(updatedTask)
+  }
+  async addAssignee(id: number, assignee: number): Promise<Task> {
+    if (!await UserUseCases.getUserByID(assignee)) {
+      throw new Error("User Not Found")
+    }
+    if ((await this.getAssignees(id)).filter(task => task.id === assignee).length != 0) {
+    throw new Error("Task already has this assignee");
+  }
+  const updatedTask = await prisma.task.update({
+    where: { id },
+    data: { assignees: { connect: { id: assignee } } },
+  });
+  return mapPrismaTaskToEntity(updatedTask)
+}
   async findByParameters(data: ITaskFindOptions): Promise<Task[] | null> {
     let query = {}
     if (data.id) {

@@ -29,6 +29,8 @@ export interface ITaskFindOptions {
 
 
 export interface ITaskRepository {
+  removeAssignee(id: number, assignee: number): Promise<Task>;
+  addAssignee(id: number, assignee: number): Promise<Task>;
   findById(id: number): Promise<Task | null>;
   findByParameters(data:ITaskFindOptions): Promise<Task[] | null >;
   findAll(): Promise<Task[]>;

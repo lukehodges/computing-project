@@ -47,6 +47,12 @@ export class TaskUseCases {
   async getAssignees(id: number): Promise<User[]> {
     return this.taskRepository.getAssignees(id);
   }
+  async addAssignee(id: number, assignee: number):Promise<Task>{
+    return this.taskRepository.addAssignee(id, assignee);
+  }
+  removeAssignee(id:number, assignee:number):Promise<Task>{
+  return this.taskRepository.removeAssignee(id, assignee);
+  }
   serializeTask(task: Task): any {
     return JSON.parse(JSON.stringify(task));
   }

@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { User } from "@/lib/entities/User";
 import { mapPrismaUserToEntity } from "@/prisma/maps/UserMapper";
 import { Task } from "@/lib/entities/Tasks";
+import { useRouter } from "next/navigation";
 export interface TaskWithAssignees extends Task {
   assignees: User[];
 }
@@ -78,13 +79,32 @@ export const columns: ColumnDef<TaskWithAssignees, any>[]= [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Assigned To" />
     ),
-    cell: ({ row }) => {
+    cell: ({ row, renderValue, table}) => {
+      let id = row.getValue("id")
       let users: User[] = [];
       const assignees = row.getValue("assignees");
+      const router = useRouter();
       if (Array.isArray(assignees)) {
         users = assignees.map((assignee) => mapPrismaUserToEntity(assignee));
       }
       const [isHovered, setIsHovered] = React.useState(false);
+
+      function deleteAssignee( pid: number): void {
+        fetch(`/api/tasks/${id}/assignees/${pid}`,{
+          method: "DELETE",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        }).catch((e)=>{
+          console.error(e);
+        }).then(()=>{
+        // remove the user with id pid from user array
+        users = users.filter((user) => user.id!== pid);
+        router.refresh()
+        // table.("assignees", users);
+        // router.refresh(); // refresh the page to reflect the changes
+        })
+      }
 
       return (
         <div
@@ -100,6 +120,7 @@ export const columns: ColumnDef<TaskWithAssignees, any>[]= [
                 name={user.firstName + " " + user.lastName}
                 url={user.image}
                 fallback={user.firstName[0] + user.lastName[0]}
+                removefunction={()=>deleteAssignee(user.id)}
               />
             ))}
           <DropdownMenu>
@@ -107,7 +128,7 @@ export const columns: ColumnDef<TaskWithAssignees, any>[]= [
               {isHovered && (
                 <Button
                   variant="ghost"
-                  className="flex h-8 w-8 p-0 b-0 m-0 data-[state=open]:bg-muted"
+                  className="flex h-6 w-6 p-0 b-0 m-0 data-[state=open]:bg-muted"
                 >
                   <SquarePlusIcon
                     className="flex-basis-[150px] text-zinc-950"
@@ -158,18 +179,18 @@ export const columns: ColumnDef<TaskWithAssignees, any>[]= [
       );
     },
   }),
-  columnHelper.accessor("description", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Description" />
-    ),
-    cell: ({ row }) => (
-      <div className="flex space-x-2">
-        <span className="max-w-[500px] truncate font-medium">
-          {row.getValue("description")}
-        </span>
-      </div>
-    ),
-  }),
+  // columnHelper.accessor("description", {
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Description" />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <div className="flex space-x-2">
+  //       <span className="max-w-[500px] truncate font-medium">
+  //         {row.getValue("description")}
+  //       </span>
+  //     </div>
+  //   ),
+  // }),
   columnHelper.accessor("status", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />

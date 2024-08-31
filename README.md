@@ -1,53 +1,21 @@
+project outline
 
 
-
-
-do you need to take notes??
-
-
-
-
-
-
-
-
-
-
-
-
-
-# project outline
-GOALS: create software for agencies to manage their team, tasks, clients and internal projects
-# features
-* Task Managment
-  * Create Tasks ✔️
-  * Task View and Breakdown
-    * edit task
-    * add tags & information to a task
-    * assign task to user 
-    * set variables, such as priorities etc.
-    * upload files to a task
-  * remove task ✔️
-  * tasks table ✔️
-    * filter based on ✔️
-      * project ✔️
-      * assignee ❓
-      * due date ❓
-* Project Managment
-  * List all projects ✔️
-  * filter based on
-    * internal project / external project ✔️
-    * members
-    * management
-    * due date
-  * Project View + Breakdown
-    * create outline of the project ✔️
-    * file managment system for project
-    * Create a Timeline for project completion
-    * view all tasks within a project
-  * create project templates
-* client managment
-  * List all Clients
-  * Client View and Breakdown
-*  
-https://devexpress.github.io/devextreme-reactive/react/scheduler/docs/guides/getting-started/
+* Task Managment System
+  * Display tasks in a  table
+  * Display tasks in a kaban board
+  * Assignees
+    * Add assignees to task in table mode
+    * Add assignees to task in kaban mode
+    * remove assignees from task in kaban
+    * remove assignees from task in table
+  * when user clicks on status, they can alter it
+  * when user clicks on priority, they can alter it
+  * 
+  * be able to update table without pagination reseting. i.e if i alter a task in the overview, the table updates without doing a DOM refresh
+  * update table with filters still being applied
+  * add tags to each task
+  * remove tags from task
+  * when tag on task is clicked. it now adds a filter on the table for just displaying that tag
+* when use badge is clicked it offers a drop down menu of 1. base specific tasks i.e contact this user. profile, manager etc but also has a section that can be made individual based on the usage
+* create the three dots 
