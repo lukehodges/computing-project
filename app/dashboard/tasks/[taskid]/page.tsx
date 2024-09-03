@@ -11,12 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import UserBadge from "../../../../components/custom/user-badge";
 import { Separator } from "@/components/ui/separator";
 import { TimelineItemProps } from "../../../../components/custom/TimelineItem";
-import { useRouter } from "next/router";
-import { Task } from "@prisma/client";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { report } from "process";
+import { useRouter } from "next/navigation";
 import { TaskUseCases } from "@/lib/usecases/index";
-import prisma from "@/lib/db";
 import { Timeline } from "@/components/custom/timeline";
 export const dynamic = 'force-dynamic'
 async function getTimeline() {
@@ -88,15 +84,10 @@ export default async function Page({ params }: { params: { taskid: string } }) {
   
   let updates = await getTimeline();
   let task = await TaskUseCases.getTaskById(Number(params.taskid))
-  if (!task) {
-    return (
-      <div>
-        <h1>Task not found</h1>
-      </div>
-    );
-  }
+  if (!task) return null
   let assignees = await TaskUseCases.getAssignees(Number(params.taskid))
   let tags = await TaskUseCases.getTags(Number(params.taskid))
+  
   return (
     <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-7 mb-4">
       <Card className="lg:col-span-5 h-[815px] sm:col-span-1">
@@ -172,13 +163,14 @@ export default async function Page({ params }: { params: { taskid: string } }) {
             <div className="text-lg ">
               Assigned To
               <div className="text-xs text-muted-foreground">
-                <div className="flex">
+                <div className="flex flex-wrap relative">
                   {assignees.map((user) => (
                     <UserBadge
                     key={user.id}
                     name={user.firstName+" " + user.lastName}
                     url={user.image}
                     fallback={user.firstName[0]}
+                    className="flex-basis-[150px]"
                     />
                   ))}
                   {/* {task?.assignees.map((user) => (
